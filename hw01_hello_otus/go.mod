@@ -1,4 +1,4 @@
-module github.com/bkornitskiy/hw01_hello_otus
+module github.com/KornitskiiBogdan/hw01_hello_otus
 
 go 1.23
 
