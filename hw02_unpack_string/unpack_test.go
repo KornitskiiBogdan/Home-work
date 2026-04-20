@@ -26,11 +26,11 @@ func TestUnpack(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
-		t.Run(tc.input, func(t *testing.T) {
-			result, err := Unpack(tc.input)
+		testcase := tc
+		t.Run(testcase.input, func(t *testing.T) {
+			result, err := Unpack(testcase.input)
 			require.NoError(t, err)
-			require.Equal(t, tc.expected, result)
+			require.Equal(t, testcase.expected, result)
 		})
 	}
 }
@@ -38,9 +38,9 @@ func TestUnpack(t *testing.T) {
 func TestUnpackInvalidString(t *testing.T) {
 	invalidStrings := []string{"3abc", "45", "aaa10b", "5", "a05", "123"}
 	for _, tc := range invalidStrings {
-		tc := tc
-		t.Run(tc, func(t *testing.T) {
-			_, err := Unpack(tc)
+		testcase := tc
+		t.Run(testcase, func(t *testing.T) {
+			_, err := Unpack(testcase)
 			require.Truef(t, errors.Is(err, ErrInvalidString), "actual error %q", err)
 		})
 	}
