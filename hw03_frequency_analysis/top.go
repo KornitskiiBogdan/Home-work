@@ -31,7 +31,8 @@ func Top10(inputString string) []string {
 		}
 		return keyValues[i].value > keyValues[j].value
 	})
-	for _, kv := range keyValues[:10] {
+	lenKeys := min(len(keyValues), 10)
+	for _, kv := range keyValues[:lenKeys] {
 		result = append(result, kv.key)
 	}
 	return result
