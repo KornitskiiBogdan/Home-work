@@ -79,4 +79,15 @@ func TestTop10(t *testing.T) {
 			require.Equal(t, expected, Top10(text))
 		}
 	})
+
+	t.Run("less than 10 unique words", func(t *testing.T) {
+		require.NotPanics(t, func() {
+			got := Top10("a a b")
+			require.Equal(t, []string{"a", "b"}, got)
+		})
+	})
+
+	t.Run("only spaces and new lines", func(t *testing.T) {
+		require.Equal(t, []string{}, Top10(" \n\t  "))
+	})
 }
