@@ -51,7 +51,7 @@ func (l *list) PushFront(v interface{}) *ListItem {
 	newHead.Next = l.Head
 	// Нужно у старой головы засетить prev element так как он nil
 	l.Head.Prev = newHead
-	//Новая голова списка
+	// Новая голова списка
 	l.Head = newHead
 	return newHead
 }
@@ -69,7 +69,7 @@ func (l *list) PushBack(v interface{}) *ListItem {
 	}
 	newTail := new(ListItem)
 	newTail.Value = v
-	//аналогично head
+	// аналогично head
 	newTail.Prev = l.Tail
 	l.Tail.Next = newTail
 	l.Tail = newTail
