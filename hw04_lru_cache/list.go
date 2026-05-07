@@ -47,9 +47,9 @@ func (l *list) PushFront(v interface{}) *ListItem {
 		l.Tail = newHead
 		return newHead
 	}
-	//добавляем указатель на следующий элемент, то есть на старую голову
+	// добавляем указатель на следующий элемент, то есть на старую голову
 	newHead.Next = l.Head
-	//Нужно у старой головы засетить prev element так как он nil
+	// Нужно у старой головы засетить prev element так как он nil
 	l.Head.Prev = newHead
 	//Новая голова списка
 	l.Head = newHead
@@ -77,16 +77,17 @@ func (l *list) PushBack(v interface{}) *ListItem {
 }
 
 func (l *list) Remove(i *ListItem) {
-	if l.Length == 1 {
+	switch {
+	case l.Length == 1:
 		l.Head = nil
 		l.Tail = nil
-	} else if l.Head == i {
+	case l.Head == i:
 		l.Head = i.Next
 		l.Head.Prev = nil
-	} else if l.Tail == i {
+	case l.Tail == i:
 		l.Tail = i.Prev
 		l.Tail.Next = nil
-	} else {
+	default:
 		i.Prev.Next = i.Next
 		i.Next.Prev = i.Prev
 	}

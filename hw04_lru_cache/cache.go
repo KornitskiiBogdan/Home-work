@@ -66,6 +66,7 @@ func (c *shardedCache) Set(key Key, value interface{}) bool {
 
 	return s.cache.Set(key, value)
 }
+
 func (c *shardedCache) Get(key Key) (interface{}, bool) {
 	s := c.shardFor(key)
 	s.mu.Lock()
@@ -85,7 +86,7 @@ func (c *shardedCache) Clear() {
 func (c *shardedCache) shardFor(key Key) *shard {
 	hash := crc32.ChecksumIEEE([]byte(key))
 
-	index := hash % uint32(len(c.shards))
+	index := int(hash) % len(c.shards)
 	return c.shards[index]
 }
 
@@ -116,7 +117,6 @@ func (c *lruCache) Set(key Key, value interface{}) bool {
 		delete(c.items, excluded.Key)
 	}
 	return false
-
 }
 
 func (c *lruCache) Get(key Key) (interface{}, bool) {
