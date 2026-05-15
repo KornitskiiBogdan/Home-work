@@ -15,6 +15,22 @@ import (
 func TestRun(t *testing.T) {
 	defer goleak.VerifyNone(t)
 
+	t.Run("task count is zero with workers returns error", func(t *testing.T) {
+		tasks := make([]Task, 0)
+		workerCount := 10
+
+		err := Run(tasks, workerCount, len(tasks))
+		require.Error(t, err)
+	})
+
+	t.Run("worker count is zero returns nil", func(t *testing.T) {
+		tasks := make([]Task, 0, 10)
+		workerCount := 0
+
+		err := Run(tasks, workerCount, len(tasks))
+		require.NoError(t, err)
+	})
+
 	t.Run("if were errors in first M tasks, than finished not more N+M tasks", func(t *testing.T) {
 		tasksCount := 50
 		tasks := make([]Task, 0, tasksCount)
@@ -36,6 +52,39 @@ func TestRun(t *testing.T) {
 
 		require.Truef(t, errors.Is(err, ErrErrorsLimitExceeded), "actual err - %v", err)
 		require.LessOrEqual(t, runTasksCount, int32(workersCount+maxErrorsCount), "extra tasks were started")
+	})
+
+	t.Run("tasks run concurrently without wall clock throughput check", func(t *testing.T) {
+		tasksCount := 50
+		tasks := make([]Task, 0, tasksCount)
+		var started int32
+		release := make(chan struct{})
+		for i := 0; i < tasksCount; i++ {
+			tasks = append(tasks, func() error {
+				atomic.AddInt32(&started, 1)
+				defer atomic.AddInt32(&started, -1)
+				<-release
+				return nil
+			})
+		}
+		workersCount := 5
+		maxErrorsCount := 1
+		runDone := make(chan struct{})
+		var err error
+		go func() {
+			err = Run(tasks, workersCount, maxErrorsCount)
+			close(runDone)
+		}()
+		require.Eventually(t, func() bool {
+			return atomic.LoadInt32(&started) >= int32(workersCount)
+		}, time.Second, 10*time.Millisecond,
+			"expected at least %d tasks in started at once",
+			workersCount)
+		for i := 0; i < tasksCount; i++ {
+			release <- struct{}{}
+		}
+		<-runDone
+		require.NoError(t, err)
 	})
 
 	t.Run("tasks without errors", func(t *testing.T) {
