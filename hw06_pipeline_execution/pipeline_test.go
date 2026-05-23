@@ -14,6 +14,37 @@ const (
 	fault         = sleepPerStage / 2
 )
 
+func TestPipelineZeroStages(t *testing.T) {
+	t.Run("pass through without done", func(t *testing.T) {
+		in := make(Bi)
+		go func() {
+			in <- 1
+			in <- 2
+			close(in)
+		}()
+		var got []int
+		for v := range ExecutePipeline(in, nil) {
+			got = append(got, v.(int))
+		}
+		require.Equal(t, []int{1, 2}, got)
+	})
+	t.Run("stop with done", func(t *testing.T) {
+		in := make(Bi)
+		done := make(Bi)
+		close(done)
+		go func() {
+			in <- 1
+			in <- 2
+			close(in)
+		}()
+		var got []int
+		for v := range ExecutePipeline(in, done) {
+			got = append(got, v.(int))
+		}
+		require.Empty(t, got)
+	})
+}
+
 func TestPipeline(t *testing.T) {
 	// Stage generator
 	g := func(_ string, f func(v interface{}) interface{}) Stage {
@@ -145,6 +176,5 @@ func TestAllStageStop(t *testing.T) {
 		wg.Wait()
 
 		require.Len(t, result, 0)
-
 	})
 }
