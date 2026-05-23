@@ -34,40 +34,59 @@ func doneStage(in In, done In) Out {
 	go func() {
 		defer close(out)
 		for {
-			select {
-			case <-done:
-				go func() {
-					for range in {
-					}
-				}()
+			if isDone(done) {
+				drainIn(in)
 				return
-			default:
-
 			}
 
-			select {
-			case <-done:
-				go func() {
-					for range in {
-					}
-				}()
-				return
+			v, ok := getOrStop(in, done)
 
-			case v, ok := <-in:
-				if !ok {
-					return
-				}
-				select {
-				case <-done:
-					go func() {
-						for range in {
-						}
-					}()
-					return
-				case out <- v:
-				}
+			if !ok {
+				return
+			}
+			if !sendOrStop(out, v, in, done) {
+				return
 			}
 		}
 	}()
 	return out
+}
+
+func getOrStop(in In, done In) (v interface{}, ok bool) {
+	select {
+	case <-done:
+		drainIn(in)
+		return nil, false
+	case v, ok = <-in:
+		return v, ok
+	}
+}
+
+func sendOrStop(out Bi, v interface{}, in In, done In) bool {
+	select {
+	case <-done:
+		drainIn(in)
+		return false
+	case out <- v:
+		return true
+	}
+}
+
+func drainIn(in In) {
+	go func() {
+		for {
+			if _, open := <-in; !open {
+				return
+			}
+		}
+	}()
+}
+
+func isDone(done In) bool {
+	select {
+	case <-done:
+		return true
+	default:
+		return false
+	}
 }
