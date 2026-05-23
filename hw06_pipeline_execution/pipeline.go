@@ -25,7 +25,6 @@ func ExecutePipeline(in In, done In, stages ...Stage) Out {
 	if done != nil {
 		out = doneStage(out, done)
 	}
-
 	return out
 }
 
@@ -38,9 +37,7 @@ func doneStage(in In, done In) Out {
 				drainIn(in)
 				return
 			}
-
 			v, ok := getOrStop(in, done)
-
 			if !ok {
 				return
 			}
