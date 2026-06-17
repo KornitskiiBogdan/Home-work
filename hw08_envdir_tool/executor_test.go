@@ -29,10 +29,9 @@ func TestRunCmd(t *testing.T) {
 	t.Run("removes env variable", func(t *testing.T) {
 		t.Setenv("TEMP", "old")
 		code := RunCmd(
-			[]string{"/bin/sh", "-c", `test -z "TEMP"`},
+			[]string{"/bin/sh", "-c", `test -z "$TEMP"`},
 			Environment{"TEMP": {NeedRemove: true}},
 		)
 		require.Equal(t, 0, code)
 	})
-
 }
