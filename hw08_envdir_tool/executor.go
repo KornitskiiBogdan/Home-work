@@ -12,7 +12,7 @@ func RunCmd(cmd []string, env Environment) (returnCode int) {
 	if len(cmd) == 0 {
 		return 1
 	}
-
+	//nolint:gosec
 	command := exec.Command(cmd[0], cmd[1:]...)
 	command.Stdin = os.Stdin
 	command.Stdout = os.Stdout
@@ -25,7 +25,6 @@ func RunCmd(cmd []string, env Environment) (returnCode int) {
 			return exitErr.ExitCode()
 		}
 		return 1
-
 	}
 	return 0
 }
