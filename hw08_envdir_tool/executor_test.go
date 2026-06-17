@@ -22,7 +22,7 @@ func TestRunCmd(t *testing.T) {
 	})
 
 	t.Run("sets env variable", func(t *testing.T) {
-		code := RunCmd([]string{"/bin/sh", "-c", `test "$TEMP = "bar"`}, Environment{"TEMP": {Value: "bar"}})
+		code := RunCmd([]string{"/bin/sh", "-c", `test "$TEMP" = "bar"`}, Environment{"TEMP": {Value: "bar"}})
 		require.Equal(t, 0, code)
 	})
 
