@@ -39,8 +39,10 @@ type Rule struct {
 }
 
 func parseRules(validateTag string) ([]Rule, error) {
-	var rules []Rule
-	for _, part := range strings.Split(validateTag, "|") {
+	splitsTag := strings.Split(validateTag, "|")
+	rules := make([]Rule, 0, len(splitsTag))
+
+	for _, part := range splitsTag {
 		part = strings.TrimSpace(part)
 		if part == "" {
 			continue
@@ -104,6 +106,7 @@ func validateField(field reflect.StructField, fieldValue reflect.Value) (Validat
 		return nil, err
 	}
 
+	//nolint:exhaustive
 	switch field.Type.Kind() {
 	case reflect.Int:
 		return validateSingleIntField(fieldValue.Int(), field.Name, rules)
@@ -127,6 +130,7 @@ func validateSliceField(fieldName string, sliceVal reflect.Value, rules []Rule) 
 		elemKind := sliceVal.Type().Elem().Kind()
 		elemField := fmt.Sprintf("%s[%d]", fieldName, i)
 
+		//nolint:exhaustive
 		switch elemKind {
 		case reflect.String:
 			validationFieldErrors, err = validateSingleStringField(elem.String(), elemField, rules)
