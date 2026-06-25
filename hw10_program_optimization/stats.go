@@ -10,7 +10,7 @@ import (
 //go:generate easyjson stats.go
 //easyjson:json
 type UserEmail struct {
-	Email string `json:"Email"`
+	Email string `json:"Email"` //nolint:tagliatelle
 }
 
 type DomainStat map[string]int

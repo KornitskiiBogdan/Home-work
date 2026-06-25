@@ -27,6 +27,7 @@ func readUsersData(b *testing.B) []byte {
 	}
 	return data
 }
+
 func BenchmarkGetDomainStat(b *testing.B) {
 	data := readUsersData(b)
 	b.ReportAllocs()
