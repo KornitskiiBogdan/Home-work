@@ -1,0 +1,84 @@
+﻿--- FAIL: TestGetDomainStat_Time_And_Memory (6.83s)
+    stats_optimization_test.go:46: time used: 402.9564ms / 300ms
+    stats_optimization_test.go:47: memory used: 265Mb / 30Mb
+    stats_optimization_test.go:49: 
+        	Error Trace:	C:/Users/kornitskiybv/GolandProjects/Home-work/hw10_program_optimization/stats_optimization_test.go:49
+        	Error:      	"402956400" is not less than "300000000"
+        	Test:       	TestGetDomainStat_Time_And_Memory
+        	Messages:   	the program is too slow
+--- FAIL: TestGetDomainStat_Time_And_Memory (16.85s)
+    stats_optimization_test.go:46: time used: 330.9634ms / 300ms
+    stats_optimization_test.go:47: memory used: 265Mb / 30Mb
+    stats_optimization_test.go:49: 
+        	Error Trace:	C:/Users/kornitskiybv/GolandProjects/Home-work/hw10_program_optimization/stats_optimization_test.go:49
+        	Error:      	"330963400" is not less than "300000000"
+        	Test:       	TestGetDomainStat_Time_And_Memory
+        	Messages:   	the program is too slow
+--- FAIL: TestGetDomainStat_Time_And_Memory (6.07s)
+    stats_optimization_test.go:46: time used: 332.7042ms / 300ms
+    stats_optimization_test.go:47: memory used: 265Mb / 30Mb
+    stats_optimization_test.go:49: 
+        	Error Trace:	C:/Users/kornitskiybv/GolandProjects/Home-work/hw10_program_optimization/stats_optimization_test.go:49
+        	Error:      	"332704200" is not less than "300000000"
+        	Test:       	TestGetDomainStat_Time_And_Memory
+        	Messages:   	the program is too slow
+--- FAIL: TestGetDomainStat_Time_And_Memory (6.02s)
+    stats_optimization_test.go:46: time used: 334.8889ms / 300ms
+    stats_optimization_test.go:47: memory used: 265Mb / 30Mb
+    stats_optimization_test.go:49: 
+        	Error Trace:	C:/Users/kornitskiybv/GolandProjects/Home-work/hw10_program_optimization/stats_optimization_test.go:49
+        	Error:      	"334888900" is not less than "300000000"
+        	Test:       	TestGetDomainStat_Time_And_Memory
+        	Messages:   	the program is too slow
+--- FAIL: TestGetDomainStat_Time_And_Memory (8.16s)
+    stats_optimization_test.go:46: time used: 564.2586ms / 300ms
+    stats_optimization_test.go:47: memory used: 265Mb / 30Mb
+    stats_optimization_test.go:49: 
+        	Error Trace:	C:/Users/kornitskiybv/GolandProjects/Home-work/hw10_program_optimization/stats_optimization_test.go:49
+        	Error:      	"564258600" is not less than "300000000"
+        	Test:       	TestGetDomainStat_Time_And_Memory
+        	Messages:   	the program is too slow
+--- FAIL: TestGetDomainStat_Time_And_Memory (17.29s)
+    stats_optimization_test.go:46: time used: 562.2242ms / 300ms
+    stats_optimization_test.go:47: memory used: 265Mb / 30Mb
+    stats_optimization_test.go:49: 
+        	Error Trace:	C:/Users/kornitskiybv/GolandProjects/Home-work/hw10_program_optimization/stats_optimization_test.go:49
+        	Error:      	"562224200" is not less than "300000000"
+        	Test:       	TestGetDomainStat_Time_And_Memory
+        	Messages:   	the program is too slow
+--- FAIL: TestGetDomainStat_Time_And_Memory (13.36s)
+    stats_optimization_test.go:46: time used: 349.7637ms / 300ms
+    stats_optimization_test.go:47: memory used: 265Mb / 30Mb
+    stats_optimization_test.go:49: 
+        	Error Trace:	C:/Users/kornitskiybv/GolandProjects/Home-work/hw10_program_optimization/stats_optimization_test.go:49
+        	Error:      	"349763700" is not less than "300000000"
+        	Test:       	TestGetDomainStat_Time_And_Memory
+        	Messages:   	the program is too slow
+--- FAIL: TestGetDomainStat_Time_And_Memory (6.08s)
+    stats_optimization_test.go:46: time used: 334.1855ms / 300ms
+    stats_optimization_test.go:47: memory used: 265Mb / 30Mb
+    stats_optimization_test.go:49: 
+        	Error Trace:	C:/Users/kornitskiybv/GolandProjects/Home-work/hw10_program_optimization/stats_optimization_test.go:49
+        	Error:      	"334185500" is not less than "300000000"
+        	Test:       	TestGetDomainStat_Time_And_Memory
+        	Messages:   	the program is too slow
+--- FAIL: TestGetDomainStat_Time_And_Memory (6.14s)
+    stats_optimization_test.go:46: time used: 335.5473ms / 300ms
+    stats_optimization_test.go:47: memory used: 265Mb / 30Mb
+    stats_optimization_test.go:49: 
+        	Error Trace:	C:/Users/kornitskiybv/GolandProjects/Home-work/hw10_program_optimization/stats_optimization_test.go:49
+        	Error:      	"335547300" is not less than "300000000"
+        	Test:       	TestGetDomainStat_Time_And_Memory
+        	Messages:   	the program is too slow
+--- FAIL: TestGetDomainStat_Time_And_Memory (6.55s)
+    stats_optimization_test.go:46: time used: 336.0186ms / 300ms
+    stats_optimization_test.go:47: memory used: 265Mb / 30Mb
+    stats_optimization_test.go:49: 
+        	Error Trace:	C:/Users/kornitskiybv/GolandProjects/Home-work/hw10_program_optimization/stats_optimization_test.go:49
+        	Error:      	"336018600" is not less than "300000000"
+        	Test:       	TestGetDomainStat_Time_And_Memory
+        	Messages:   	the program is too slow
+FAIL
+exit status 1
+FAIL	github.com/fixme_my_friend/hw10_program_optimization	95.731s
+FAIL
