@@ -9,6 +9,7 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 	"time"
 )
@@ -37,6 +38,15 @@ func main() {
 	defer stop()
 
 	go func() {
+		<-ctx.Done()
+		_ = client.Close()
+	}()
+
+	var wg sync.WaitGroup
+	wg.Add(1)
+
+	go func() {
+		defer wg.Done()
 		for {
 			err := client.Receive()
 			if err != nil {
@@ -49,6 +59,11 @@ func main() {
 		}
 	}()
 
+	send(ctx, client)
+	wg.Wait()
+}
+
+func send(ctx context.Context, client TelnetClient) {
 	for {
 		select {
 		case <-ctx.Done():
@@ -60,7 +75,6 @@ func main() {
 		if err != nil {
 			if errors.Is(err, io.EOF) {
 				fmt.Fprintf(os.Stderr, "connection closed\n")
-				client.Close()
 			}
 			return
 		}
