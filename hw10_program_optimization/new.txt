@@ -1,0 +1,12 @@
+﻿BenchmarkGetDomainStat-20    	      20	  54777245 ns/op	 5335213 B/op	  200017 allocs/op
+BenchmarkGetDomainStat-20    	      21	  55448871 ns/op	 5335208 B/op	  200017 allocs/op
+BenchmarkGetDomainStat-20    	      21	  56934276 ns/op	 5335208 B/op	  200017 allocs/op
+BenchmarkGetDomainStat-20    	      20	  54854085 ns/op	 5335208 B/op	  200017 allocs/op
+BenchmarkGetDomainStat-20    	      21	  54580438 ns/op	 5335224 B/op	  200017 allocs/op
+BenchmarkGetDomainStat-20    	      20	  53884365 ns/op	 5335213 B/op	  200017 allocs/op
+BenchmarkGetDomainStat-20    	      19	  54360821 ns/op	 5335208 B/op	  200017 allocs/op
+BenchmarkGetDomainStat-20    	      20	  54569475 ns/op	 5335208 B/op	  200017 allocs/op
+BenchmarkGetDomainStat-20    	      22	  53864314 ns/op	 5335213 B/op	  200017 allocs/op
+BenchmarkGetDomainStat-20    	      21	  53802814 ns/op	 5335208 B/op	  200017 allocs/op
+PASS
+ok  	github.com/fixme_my_friend/hw10_program_optimization	26.670s
