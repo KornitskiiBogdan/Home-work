@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"io"
 	"net"
 	"time"
@@ -43,7 +44,7 @@ func (c *telnetClient) Send() error {
 			return writeErr
 		}
 	}
-	if err == io.EOF {
+	if errors.Is(err, io.EOF) {
 		return io.EOF
 	}
 	return err
@@ -58,7 +59,7 @@ func (c *telnetClient) Receive() error {
 			return writeErr
 		}
 	}
-	if err == io.EOF {
+	if errors.Is(err, io.EOF) {
 		return io.EOF
 	}
 	return err

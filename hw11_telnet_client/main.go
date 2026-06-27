@@ -31,11 +31,7 @@ func main() {
 		os.Exit(1)
 	}
 	defer client.Close()
-	_, err := fmt.Fprintf(os.Stderr, "...Connected to %s\n", address)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "print failed: %v\n", err)
-		os.Exit(1)
-	}
+	fmt.Fprintf(os.Stderr, "...Connected to %s\n", address)
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
@@ -69,5 +65,4 @@ func main() {
 			return
 		}
 	}
-
 }
