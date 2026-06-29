@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io"
 	"net"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -61,5 +62,42 @@ func TestTelnetClient(t *testing.T) {
 		}()
 
 		wg.Wait()
+	})
+
+	t.Run("connect refused", func(t *testing.T) {
+		ln, err := net.Listen("tcp", "127.0.0.1:0")
+		require.NoError(t, err)
+		addr := ln.Addr().String()
+		require.NoError(t, ln.Close())
+		client := NewTelnetClient(
+			addr,
+			time.Second,
+			io.NopCloser(strings.NewReader("")),
+			&bytes.Buffer{},
+		)
+		err = client.Connect()
+		require.Error(t, err)
+	})
+
+	t.Run("send EOF on closed stdin", func(t *testing.T) {
+		ln, err := net.Listen("tcp", "127.0.0.1:0")
+		require.NoError(t, err)
+		defer ln.Close()
+		go func() {
+			conn, _ := ln.Accept()
+			if conn != nil {
+				conn.Close()
+			}
+		}()
+		client := NewTelnetClient(
+			ln.Addr().String(),
+			time.Second,
+			io.NopCloser(strings.NewReader("")),
+			&bytes.Buffer{},
+		)
+		require.NoError(t, client.Connect())
+		defer client.Close()
+		err = client.Send()
+		require.ErrorIs(t, err, io.EOF)
 	})
 }
