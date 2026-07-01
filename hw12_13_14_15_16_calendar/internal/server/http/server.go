@@ -4,6 +4,11 @@ import (
 	"context"
 )
 
+type HttpConf struct {
+	Host string `yaml:"host"`
+	Port int    `yaml:"port"`
+}
+
 type Server struct { // TODO
 }
 
@@ -13,7 +18,7 @@ type Logger interface { // TODO
 type Application interface { // TODO
 }
 
-func NewServer(logger Logger, app Application) *Server {
+func NewServer(logger Logger, cfg HttpConf, app Application) *Server {
 	return &Server{}
 }
 

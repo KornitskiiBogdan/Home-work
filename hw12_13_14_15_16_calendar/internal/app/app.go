@@ -20,7 +20,7 @@ func New(logger Logger, storage Storage) *App {
 func (a *App) CreateEvent(ctx context.Context, id, title string) error {
 	// TODO
 	return nil
-	// return a.storage.CreateEvent(storage.Event{ID: id, Title: title})
+	// return a.storage.CreateEvent(storage.Event{Id: id, Title: title})
 }
 
 // TODO
