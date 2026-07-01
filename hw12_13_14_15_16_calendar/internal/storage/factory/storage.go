@@ -13,7 +13,7 @@ func New(cfg storage.Config) (storage.Storage, error) {
 	case storage.TypeMemory:
 		return memorystorage.New(), nil
 	case storage.TypeSQL:
-		return sqlstorage.New(cfg.DB.DSN(), "./migrations") //TODO нужно подумать чтобы доставать автоматом путь
+		return sqlstorage.New(cfg.DB.DSN())
 	default:
 		return nil, fmt.Errorf("unknown storage type: %q", cfg.Type)
 	}

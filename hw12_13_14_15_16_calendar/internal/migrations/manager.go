@@ -12,7 +12,7 @@ type Manager struct {
 	dir string
 }
 
-func NewManager(dsn, migrationsDir string) (*Manager, error) {
+func NewManager(dsn string) (*Manager, error) {
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {
 		return nil, err
@@ -34,9 +34,10 @@ func NewManager(dsn, migrationsDir string) (*Manager, error) {
 		return nil, err
 	}
 
+	goose.SetBaseFS(FS)
+
 	return &Manager{
-		db:  db,
-		dir: migrationsDir,
+		db: db,
 	}, nil
 }
 

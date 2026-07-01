@@ -16,8 +16,8 @@ type postgresSQL struct {
 	db *sql.DB
 }
 
-func New(dsn, migrationsDir string) (storage.Storage, error) {
-	manager, err := migrations.NewManager(dsn, migrationsDir)
+func New(dsn string) (storage.Storage, error) {
+	manager, err := migrations.NewManager(dsn)
 	if err != nil {
 		return nil, err
 	}
