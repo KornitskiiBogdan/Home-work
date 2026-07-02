@@ -3,13 +3,12 @@ package migrations
 import (
 	"database/sql"
 
-	_ "github.com/lib/pq"
+	_ "github.com/lib/pq" //nolint:revive
 	"github.com/pressly/goose/v3"
 )
 
 type Manager struct {
-	db  *sql.DB
-	dir string
+	db *sql.DB
 }
 
 func NewManager(dsn string) (*Manager, error) {

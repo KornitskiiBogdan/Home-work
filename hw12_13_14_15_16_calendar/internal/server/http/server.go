@@ -6,9 +6,14 @@ import (
 	"net"
 	"net/http"
 	"strconv"
+	"time"
 )
 
-type HttpConf struct {
+const (
+	ReadHeaderTimeout = 10 * time.Second
+)
+
+type HTTPConf struct {
 	Host string `yaml:"host"`
 	Port int    `yaml:"port"`
 }
@@ -22,13 +27,13 @@ type Application interface { // TODO
 
 type Server struct {
 	log Logger
-	cfg HttpConf
+	cfg HTTPConf
 	app Application
 
 	server *http.Server
 }
 
-func NewServer(logger Logger, cfg HttpConf, app Application) *Server {
+func NewServer(logger Logger, cfg HTTPConf, app Application) *Server {
 	return &Server{
 		log: logger,
 		cfg: cfg,
@@ -41,8 +46,9 @@ func (s *Server) Start(ctx context.Context) error {
 	mux.HandleFunc("/hello", helloHandler)
 	addr := net.JoinHostPort(s.cfg.Host, strconv.Itoa(s.cfg.Port))
 	s.server = &http.Server{
-		Addr:    addr,
-		Handler: loggingMiddleware(s.log, mux),
+		Addr:              addr,
+		Handler:           loggingMiddleware(s.log, mux),
+		ReadHeaderTimeout: ReadHeaderTimeout,
 	}
 
 	errCh := make(chan error, 1)
@@ -72,7 +78,7 @@ func (s *Server) Stop(ctx context.Context) error {
 	return s.server.Shutdown(ctx)
 }
 
-func helloHandler(w http.ResponseWriter, r *http.Request) {
+func helloHandler(w http.ResponseWriter, _ *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("hello world"))
 }

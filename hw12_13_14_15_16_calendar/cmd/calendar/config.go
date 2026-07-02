@@ -11,7 +11,7 @@ import (
 
 type Config struct {
 	Logger  logger.Conf    `yaml:"logger"`
-	Http    http.HttpConf  `yaml:"http"`
+	HTTP    http.HTTPConf  `yaml:"http"`
 	Storage storage.Config `yaml:"storage"`
 }
 

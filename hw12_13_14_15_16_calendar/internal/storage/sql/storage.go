@@ -46,7 +46,7 @@ func (s *postgresSQL) Get(ctx context.Context, id string) (domain.Event, error) 
 	var event domain.Event
 	var notify sql.NullString
 
-	err := s.db.QueryRowContext(ctx, query, id).Scan(&event.Id, &event.Title, &event.StartTime, &event.EndTime, &event.Description, &event.UserId, &notify)
+	err := s.db.QueryRowContext(ctx, query, id).Scan(&event.ID, &event.Title, &event.StartTime, &event.EndTime, &event.Description, &event.UserID, &notify)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return event, domain.ErrNotFound
@@ -70,12 +70,12 @@ func (s *postgresSQL) Create(ctx context.Context, event domain.Event) error {
 		return err
 	}
 
-	_, err := s.db.ExecContext(ctx, query, event.Id,
+	_, err := s.db.ExecContext(ctx, query, event.ID,
 		event.Title,
 		event.StartTime,
 		event.EndTime,
 		event.Description,
-		event.UserId,
+		event.UserID,
 		durationToInterval(event.NotifyBefore))
 
 	if err != nil {
@@ -97,12 +97,12 @@ func (s *postgresSQL) Update(ctx context.Context, event domain.Event) error {
 	}
 
 	res, err := s.db.ExecContext(ctx, query,
-		event.Id,
+		event.ID,
 		event.Title,
 		event.StartTime,
 		event.EndTime,
 		event.Description,
-		event.UserId,
+		event.UserID,
 		durationToInterval(event.NotifyBefore),
 	)
 
@@ -143,25 +143,25 @@ func (s *postgresSQL) Delete(ctx context.Context, id string) error {
 	return nil
 }
 
-func (s *postgresSQL) ListOnDay(ctx context.Context, userId string, day time.Time) ([]domain.Event, error) {
+func (s *postgresSQL) ListOnDay(ctx context.Context, userID string, day time.Time) ([]domain.Event, error) {
 	start := time.Date(day.Year(), day.Month(), day.Day(), 0, 0, 0, 0, day.Location())
 	end := start.Add(24 * time.Hour)
 
-	return s.listByRange(ctx, userId, start, end)
+	return s.listByRange(ctx, userID, start, end)
 }
 
-func (s *postgresSQL) ListOnWeek(ctx context.Context, userId string, weekStart time.Time) ([]domain.Event, error) {
+func (s *postgresSQL) ListOnWeek(ctx context.Context, userID string, weekStart time.Time) ([]domain.Event, error) {
 	start := time.Date(weekStart.Year(), weekStart.Month(), weekStart.Day(), 0, 0, 0, 0, weekStart.Location())
 	end := start.Add(7 * 24 * time.Hour)
 
-	return s.listByRange(ctx, userId, start, end)
+	return s.listByRange(ctx, userID, start, end)
 }
 
-func (s *postgresSQL) ListOnMonth(ctx context.Context, userId string, monthStart time.Time) ([]domain.Event, error) {
+func (s *postgresSQL) ListOnMonth(ctx context.Context, userID string, monthStart time.Time) ([]domain.Event, error) {
 	start := time.Date(monthStart.Year(), monthStart.Month(), 1, 0, 0, 0, 0, monthStart.Location())
 	end := start.AddDate(0, 1, 0)
 
-	return s.listByRange(ctx, userId, start, end)
+	return s.listByRange(ctx, userID, start, end)
 }
 
 func (s *postgresSQL) checkBusy(ctx context.Context, event domain.Event) error {
@@ -172,7 +172,7 @@ func (s *postgresSQL) checkBusy(ctx context.Context, event domain.Event) error {
 					LIMIT 1`
 
 	var dummy int
-	err := s.db.QueryRowContext(ctx, query, event.Id, event.UserId, event.StartTime, event.EndTime).Scan(&dummy)
+	err := s.db.QueryRowContext(ctx, query, event.ID, event.UserID, event.StartTime, event.EndTime).Scan(&dummy)
 
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil
@@ -192,13 +192,13 @@ func durationToInterval(d time.Duration) interface{} {
 	return d.String()
 }
 
-func (s *postgresSQL) listByRange(ctx context.Context, userId string, startTime, endTime time.Time) ([]domain.Event, error) {
+func (s *postgresSQL) listByRange(ctx context.Context, userID string, startTime, endTime time.Time) ([]domain.Event, error) {
 	const query = `
 		SELECT id, title, start_time, end_time, description, user_id, notify_before
 		FROM events
 		WHERE user_id = $1 AND start_time >= $2 AND end_time <= $3`
 
-	rows, err := s.db.QueryContext(ctx, query, userId, startTime, endTime)
+	rows, err := s.db.QueryContext(ctx, query, userID, startTime, endTime)
 	if err != nil {
 		return nil, err
 	}
@@ -209,7 +209,7 @@ func (s *postgresSQL) listByRange(ctx context.Context, userId string, startTime,
 	for rows.Next() {
 		var event domain.Event
 		var notify sql.NullString
-		err := rows.Scan(&event.Id, &event.Title, &event.StartTime, &event.EndTime, &event.Description, &event.UserId, &notify)
+		err := rows.Scan(&event.ID, &event.Title, &event.StartTime, &event.EndTime, &event.Description, &event.UserID, &notify)
 		if err != nil {
 			return nil, err
 		}

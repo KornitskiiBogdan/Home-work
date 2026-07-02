@@ -13,7 +13,7 @@ import (
 
 func TestStorage_Create(t *testing.T) {
 	id := uuid.New().String()
-	event := domain.Event{Id: id}
+	event := domain.Event{ID: id}
 	storage := New()
 
 	assert.NoError(t, storage.Create(context.Background(), event))
@@ -26,8 +26,8 @@ func TestStorage_Create(t *testing.T) {
 func TestStorage_CreateWithDateBusyError(t *testing.T) {
 
 	timeStart := time.Now()
-	event1 := domain.Event{Id: uuid.New().String(), UserId: "1", StartTime: timeStart, EndTime: timeStart.Add(time.Hour)}
-	event2 := domain.Event{Id: uuid.New().String(), UserId: "1", StartTime: timeStart.Add(-30 * time.Minute), EndTime: timeStart.Add(30 * time.Minute)}
+	event1 := domain.Event{ID: uuid.New().String(), UserID: "1", StartTime: timeStart, EndTime: timeStart.Add(time.Hour)}
+	event2 := domain.Event{ID: uuid.New().String(), UserID: "1", StartTime: timeStart.Add(-30 * time.Minute), EndTime: timeStart.Add(30 * time.Minute)}
 	storage := New()
 
 	assert.NoError(t, storage.Create(context.Background(), event1))
@@ -38,8 +38,8 @@ func TestStorage_CreateWithDateBusyError(t *testing.T) {
 
 func TestStorage_CreateWithIDExistsError(t *testing.T) {
 	id := uuid.New().String()
-	event1 := domain.Event{Id: id}
-	event2 := domain.Event{Id: id}
+	event1 := domain.Event{ID: id}
+	event2 := domain.Event{ID: id}
 	storage := New()
 
 	assert.NoError(t, storage.Create(context.Background(), event1))
@@ -50,10 +50,10 @@ func TestStorage_CreateWithIDExistsError(t *testing.T) {
 
 func TestStorage_MultiThreadingCreate(t *testing.T) {
 	id1 := uuid.New().String()
-	event1 := domain.Event{Id: id1}
+	event1 := domain.Event{ID: id1}
 
 	id2 := uuid.New().String()
-	event2 := domain.Event{Id: id2}
+	event2 := domain.Event{ID: id2}
 
 	storage := New()
 	wg := sync.WaitGroup{}
@@ -90,16 +90,16 @@ func TestStorage_Update(t *testing.T) {
 	start := time.Date(2026, 6, 15, 10, 0, 0, 0, time.UTC)
 
 	event := domain.Event{
-		Id:        id,
+		ID:        id,
 		Title:     "old",
-		UserId:    "user-1",
+		UserID:    "user-1",
 		StartTime: start,
 		EndTime:   start.Add(time.Hour),
 	}
 	updated := domain.Event{
-		Id:        id,
+		ID:        id,
 		Title:     "new",
-		UserId:    "user-1",
+		UserID:    "user-1",
 		StartTime: start,
 		EndTime:   start.Add(2 * time.Hour),
 	}
@@ -116,7 +116,7 @@ func TestStorage_Update(t *testing.T) {
 func TestStorage_UpdateNotFound(t *testing.T) {
 	storage := New()
 
-	err := storage.Update(context.Background(), domain.Event{Id: uuid.New().String()})
+	err := storage.Update(context.Background(), domain.Event{ID: uuid.New().String()})
 	assert.ErrorIs(t, err, domain.ErrNotFound)
 }
 
@@ -124,14 +124,14 @@ func TestStorage_UpdateDateBusy(t *testing.T) {
 	start := time.Date(2026, 6, 15, 10, 0, 0, 0, time.UTC)
 
 	event1 := domain.Event{
-		Id:        uuid.New().String(),
-		UserId:    "user-1",
+		ID:        uuid.New().String(),
+		UserID:    "user-1",
 		StartTime: start,
 		EndTime:   start.Add(time.Hour),
 	}
 	event2 := domain.Event{
-		Id:        uuid.New().String(),
-		UserId:    "user-1",
+		ID:        uuid.New().String(),
+		UserID:    "user-1",
 		StartTime: start.Add(2 * time.Hour),
 		EndTime:   start.Add(3 * time.Hour),
 	}
@@ -151,9 +151,9 @@ func TestStorage_UpdateSameSlot(t *testing.T) {
 	start := time.Date(2026, 6, 15, 10, 0, 0, 0, time.UTC)
 
 	event := domain.Event{
-		Id:        uuid.New().String(),
+		ID:        uuid.New().String(),
 		Title:     "title",
-		UserId:    "user-1",
+		UserID:    "user-1",
 		StartTime: start,
 		EndTime:   start.Add(time.Hour),
 	}
@@ -164,7 +164,7 @@ func TestStorage_UpdateSameSlot(t *testing.T) {
 	assert.NoError(t, storage.Create(context.Background(), event))
 	assert.NoError(t, storage.Update(context.Background(), updated))
 
-	actual, err := storage.Get(context.Background(), event.Id)
+	actual, err := storage.Get(context.Background(), event.ID)
 	assert.NoError(t, err)
 	assert.Equal(t, "updated title", actual.Title)
 }
@@ -173,7 +173,7 @@ func TestStorage_Delete(t *testing.T) {
 	id := uuid.New().String()
 	storage := New()
 
-	assert.NoError(t, storage.Create(context.Background(), domain.Event{Id: id}))
+	assert.NoError(t, storage.Create(context.Background(), domain.Event{ID: id}))
 	assert.NoError(t, storage.Delete(context.Background(), id))
 
 	_, err := storage.Get(context.Background(), id)
@@ -191,14 +191,14 @@ func TestStorage_CreateDateBusyOnlyForSameUser(t *testing.T) {
 	start := time.Date(2026, 6, 15, 10, 0, 0, 0, time.UTC)
 
 	event1 := domain.Event{
-		Id:        uuid.New().String(),
-		UserId:    "user-1",
+		ID:        uuid.New().String(),
+		UserID:    "user-1",
 		StartTime: start,
 		EndTime:   start.Add(time.Hour),
 	}
 	event2 := domain.Event{
-		Id:        uuid.New().String(),
-		UserId:    "user-2", // другой пользователь
+		ID:        uuid.New().String(),
+		UserID:    "user-2", // другой пользователь
 		StartTime: start,
 		EndTime:   start.Add(time.Hour),
 	}
@@ -211,20 +211,20 @@ func TestStorage_CreateDateBusyOnlyForSameUser(t *testing.T) {
 func TestStorage_ListOnDay(t *testing.T) {
 	day := time.Date(2026, 6, 15, 0, 0, 0, 0, time.UTC)
 	inDay := domain.Event{
-		Id:        uuid.New().String(),
-		UserId:    "user-1",
+		ID:        uuid.New().String(),
+		UserID:    "user-1",
 		StartTime: day.Add(10 * time.Hour),
 		EndTime:   day.Add(11 * time.Hour),
 	}
 	otherDay := domain.Event{
-		Id:        uuid.New().String(),
-		UserId:    "user-1",
+		ID:        uuid.New().String(),
+		UserID:    "user-1",
 		StartTime: day.Add(25 * time.Hour),
 		EndTime:   day.Add(26 * time.Hour),
 	}
 	otherUser := domain.Event{
-		Id:        uuid.New().String(),
-		UserId:    "user-2",
+		ID:        uuid.New().String(),
+		UserID:    "user-2",
 		StartTime: day.Add(10 * time.Hour),
 		EndTime:   day.Add(11 * time.Hour),
 	}
@@ -237,21 +237,21 @@ func TestStorage_ListOnDay(t *testing.T) {
 	events, err := storage.ListOnDay(context.Background(), "user-1", day)
 	assert.NoError(t, err)
 	assert.Len(t, events, 1)
-	assert.Equal(t, inDay.Id, events[0].Id)
+	assert.Equal(t, inDay.ID, events[0].ID)
 }
 
 func TestStorage_ListOnWeek(t *testing.T) {
 	weekStart := time.Date(2026, 6, 15, 0, 0, 0, 0, time.UTC) // понедельник
 
 	inWeek := domain.Event{
-		Id:        uuid.New().String(),
-		UserId:    "user-1",
+		ID:        uuid.New().String(),
+		UserID:    "user-1",
 		StartTime: weekStart.Add(2 * 24 * time.Hour).Add(10 * time.Hour),
 		EndTime:   weekStart.Add(2 * 24 * time.Hour).Add(11 * time.Hour),
 	}
 	outOfWeek := domain.Event{
-		Id:        uuid.New().String(),
-		UserId:    "user-1",
+		ID:        uuid.New().String(),
+		UserID:    "user-1",
 		StartTime: weekStart.Add(8 * 24 * time.Hour).Add(10 * time.Hour),
 		EndTime:   weekStart.Add(8 * 24 * time.Hour).Add(11 * time.Hour),
 	}
@@ -263,21 +263,21 @@ func TestStorage_ListOnWeek(t *testing.T) {
 	events, err := storage.ListOnWeek(context.Background(), "user-1", weekStart)
 	assert.NoError(t, err)
 	assert.Len(t, events, 1)
-	assert.Equal(t, inWeek.Id, events[0].Id)
+	assert.Equal(t, inWeek.ID, events[0].ID)
 }
 
 func TestStorage_ListOnMonth(t *testing.T) {
 	monthStart := time.Date(2026, 6, 1, 0, 0, 0, 0, time.UTC)
 
 	inMonth := domain.Event{
-		Id:        uuid.New().String(),
-		UserId:    "user-1",
+		ID:        uuid.New().String(),
+		UserID:    "user-1",
 		StartTime: time.Date(2026, 6, 10, 10, 0, 0, 0, time.UTC),
 		EndTime:   time.Date(2026, 6, 10, 11, 0, 0, 0, time.UTC),
 	}
 	outOfMonth := domain.Event{
-		Id:        uuid.New().String(),
-		UserId:    "user-1",
+		ID:        uuid.New().String(),
+		UserID:    "user-1",
 		StartTime: time.Date(2026, 7, 1, 10, 0, 0, 0, time.UTC),
 		EndTime:   time.Date(2026, 7, 1, 11, 0, 0, 0, time.UTC),
 	}
@@ -289,7 +289,7 @@ func TestStorage_ListOnMonth(t *testing.T) {
 	events, err := storage.ListOnMonth(context.Background(), "user-1", monthStart)
 	assert.NoError(t, err)
 	assert.Len(t, events, 1)
-	assert.Equal(t, inMonth.Id, events[0].Id)
+	assert.Equal(t, inMonth.ID, events[0].ID)
 }
 
 func TestStorage_ConcurrentReadWrite(t *testing.T) {
@@ -304,7 +304,7 @@ func TestStorage_ConcurrentReadWrite(t *testing.T) {
 			defer wg.Done()
 
 			id := uuid.New().String()
-			event := domain.Event{Id: id, Title: "event"}
+			event := domain.Event{ID: id, Title: "event"}
 
 			if err := storage.Create(context.Background(), event); err != nil {
 				t.Errorf("create failed: %v", err)

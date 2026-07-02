@@ -3,11 +3,11 @@ package domain
 import "time"
 
 type Event struct {
-	Id           string
+	ID           string
 	Title        string
 	StartTime    time.Time
 	EndTime      time.Time
 	Description  string
-	UserId       string
+	UserID       string
 	NotifyBefore time.Duration
 }

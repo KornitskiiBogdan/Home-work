@@ -33,13 +33,13 @@ type Logger interface {
 func New(conf Conf, writer io.Writer) Logger {
 	var levelZerolog zerolog.Level
 	switch conf.Level {
-	case "debug":
+	case DebugLevel:
 		levelZerolog = zerolog.DebugLevel
-	case "info":
+	case InfoLevel:
 		levelZerolog = zerolog.InfoLevel
-	case "warn":
+	case WarnLevel:
 		levelZerolog = zerolog.WarnLevel
-	case "error":
+	case ErrorLevel:
 		levelZerolog = zerolog.ErrorLevel
 	default:
 		levelZerolog = zerolog.DebugLevel

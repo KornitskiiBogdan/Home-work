@@ -41,7 +41,7 @@ type Storage interface {
 	Create(ctx context.Context, event domain.Event) error
 	Update(ctx context.Context, event domain.Event) error
 	Delete(ctx context.Context, id string) error
-	ListOnDay(ctx context.Context, userId string, day time.Time) ([]domain.Event, error)
-	ListOnWeek(ctx context.Context, userId string, weekStart time.Time) ([]domain.Event, error)
-	ListOnMonth(ctx context.Context, userId string, monthStart time.Time) ([]domain.Event, error)
+	ListOnDay(ctx context.Context, userID string, day time.Time) ([]domain.Event, error)
+	ListOnWeek(ctx context.Context, userID string, weekStart time.Time) ([]domain.Event, error)
+	ListOnMonth(ctx context.Context, userID string, monthStart time.Time) ([]domain.Event, error)
 }
