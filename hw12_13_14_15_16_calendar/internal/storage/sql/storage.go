@@ -40,8 +40,31 @@ func New(dsn string) (storage.Storage, error) {
 	}, nil
 }
 
+func (s *postgresSQL) Get(ctx context.Context, id string) (domain.Event, error) {
+	const query = `SELECT * FROM events WHERE id = $1`
+
+	var event domain.Event
+	var notify sql.NullString
+
+	err := s.db.QueryRowContext(ctx, query, id).Scan(&event.Id, &event.Title, &event.StartTime, &event.EndTime, &event.Description, &event.UserId, &notify)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return event, domain.ErrNotFound
+		}
+		return domain.Event{}, err
+	}
+	if notify.Valid {
+		d, err := time.ParseDuration(notify.String)
+		if err == nil {
+			event.NotifyBefore = d
+		}
+	}
+
+	return event, nil
+}
+
 func (s *postgresSQL) Create(ctx context.Context, event domain.Event) error {
-	query := `INSERT INTO events (id, title, start_time, end_time, description, user_id, notify_before) VALUES ($1, $2, $3, $4, $5, $6, $7)`
+	const query = `INSERT INTO events (id, title, start_time, end_time, description, user_id, notify_before) VALUES ($1, $2, $3, $4, $5, $6, $7)`
 
 	if err := s.checkBusy(ctx, event); err != nil {
 		return err

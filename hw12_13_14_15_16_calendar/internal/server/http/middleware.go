@@ -13,11 +13,16 @@ type response struct {
 	status int
 }
 
+func (r *response) WriteHeader(code int) {
+	r.status = code
+	r.ResponseWriter.WriteHeader(code)
+}
+
 func loggingMiddleware(log Logger, next http.Handler) http.Handler { //nolint:unused
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 
-		wrapped := &response{ResponseWriter: w, status: r.Response.StatusCode}
+		wrapped := &response{ResponseWriter: w, status: http.StatusOK}
 
 		next.ServeHTTP(wrapped, r)
 		latencyMS := time.Since(start).Milliseconds()

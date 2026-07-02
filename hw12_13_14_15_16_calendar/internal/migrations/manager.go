@@ -42,15 +42,15 @@ func NewManager(dsn string) (*Manager, error) {
 }
 
 func (m *Manager) Up() error {
-	return goose.Up(m.db, m.dir)
+	return goose.Up(m.db, "sql")
 }
 
 func (m *Manager) Down() error {
-	return goose.Down(m.db, m.dir)
+	return goose.Down(m.db, "sql")
 }
 
 func (m *Manager) Status() error {
-	return goose.Status(m.db, m.dir)
+	return goose.Status(m.db, "sql")
 }
 
 func (m *Manager) Close() error {
