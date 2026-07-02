@@ -36,6 +36,7 @@ func main() {
 
 	storageApp, err := factory.New(config.Storage)
 	if err != nil {
+		logg.Error(err.Error())
 		panic(err)
 	}
 	calendar := app.New(logg, storageApp)

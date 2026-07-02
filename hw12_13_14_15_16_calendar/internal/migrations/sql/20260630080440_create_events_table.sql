@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS events(
     notify_before INTERVAL
 );
 
-CREATE INDEX IF NOT EXISTS idx_events_user_id ON events(user_id)
+CREATE INDEX IF NOT EXISTS idx_events_user_id ON events(user_id);
 
 -- +goose Down
 DROP INDEX IF EXISTS idx_events_user_id;
