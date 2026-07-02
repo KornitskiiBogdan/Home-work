@@ -46,7 +46,8 @@ func (s *postgresSQL) Get(ctx context.Context, id string) (domain.Event, error) 
 	var event domain.Event
 	var notify sql.NullString
 
-	err := s.db.QueryRowContext(ctx, query, id).Scan(&event.ID, &event.Title, &event.StartTime, &event.EndTime, &event.Description, &event.UserID, &notify)
+	err := s.db.QueryRowContext(ctx, query, id).Scan(&event.ID, &event.Title, &event.StartTime, &event.EndTime,
+		&event.Description, &event.UserID, &notify)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return event, domain.ErrNotFound
@@ -64,7 +65,9 @@ func (s *postgresSQL) Get(ctx context.Context, id string) (domain.Event, error) 
 }
 
 func (s *postgresSQL) Create(ctx context.Context, event domain.Event) error {
-	const query = `INSERT INTO events (id, title, start_time, end_time, description, user_id, notify_before) VALUES ($1, $2, $3, $4, $5, $6, $7)`
+	const query = `
+					INSERT INTO events (id, title, start_time, end_time, description, user_id, notify_before) 
+					VALUES ($1, $2, $3, $4, $5, $6, $7)`
 
 	if err := s.checkBusy(ctx, event); err != nil {
 		return err
@@ -151,14 +154,16 @@ func (s *postgresSQL) ListOnDay(ctx context.Context, userID string, day time.Tim
 }
 
 func (s *postgresSQL) ListOnWeek(ctx context.Context, userID string, weekStart time.Time) ([]domain.Event, error) {
-	start := time.Date(weekStart.Year(), weekStart.Month(), weekStart.Day(), 0, 0, 0, 0, weekStart.Location())
+	start := time.Date(weekStart.Year(), weekStart.Month(), weekStart.Day(),
+		0, 0, 0, 0, weekStart.Location())
 	end := start.Add(7 * 24 * time.Hour)
 
 	return s.listByRange(ctx, userID, start, end)
 }
 
 func (s *postgresSQL) ListOnMonth(ctx context.Context, userID string, monthStart time.Time) ([]domain.Event, error) {
-	start := time.Date(monthStart.Year(), monthStart.Month(), 1, 0, 0, 0, 0, monthStart.Location())
+	start := time.Date(monthStart.Year(), monthStart.Month(), 1,
+		0, 0, 0, 0, monthStart.Location())
 	end := start.AddDate(0, 1, 0)
 
 	return s.listByRange(ctx, userID, start, end)
@@ -192,7 +197,8 @@ func durationToInterval(d time.Duration) interface{} {
 	return d.String()
 }
 
-func (s *postgresSQL) listByRange(ctx context.Context, userID string, startTime, endTime time.Time) ([]domain.Event, error) {
+func (s *postgresSQL) listByRange(ctx context.Context, userID string,
+	startTime, endTime time.Time) ([]domain.Event, error) {
 	const query = `
 		SELECT id, title, start_time, end_time, description, user_id, notify_before
 		FROM events
@@ -209,7 +215,8 @@ func (s *postgresSQL) listByRange(ctx context.Context, userID string, startTime,
 	for rows.Next() {
 		var event domain.Event
 		var notify sql.NullString
-		err := rows.Scan(&event.ID, &event.Title, &event.StartTime, &event.EndTime, &event.Description, &event.UserID, &notify)
+		err := rows.Scan(&event.ID, &event.Title, &event.StartTime, &event.EndTime,
+			&event.Description, &event.UserID, &notify)
 		if err != nil {
 			return nil, err
 		}

@@ -11,7 +11,7 @@ import (
 
 type memoryStorage struct {
 	events map[string]domain.Event
-	mu     sync.RWMutex //nolint:unused
+	mu     sync.RWMutex
 }
 
 func New() storage.Storage {

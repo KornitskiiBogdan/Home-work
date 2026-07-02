@@ -18,7 +18,7 @@ func (r *response) WriteHeader(code int) {
 	r.ResponseWriter.WriteHeader(code)
 }
 
-func loggingMiddleware(log Logger, next http.Handler) http.Handler { //nolint:unused
+func loggingMiddleware(log Logger, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 
