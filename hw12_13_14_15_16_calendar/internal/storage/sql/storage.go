@@ -79,8 +79,8 @@ func (s *postgresSQL) Create(ctx context.Context, event domain.Event) error {
 		event.EndTime,
 		event.Description,
 		event.UserID,
-		durationToInterval(event.NotifyBefore))
-
+		durationToInterval(event.NotifyBefore),
+	)
 	if err != nil {
 		var pgErr *pq.Error
 		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
@@ -108,7 +108,6 @@ func (s *postgresSQL) Update(ctx context.Context, event domain.Event) error {
 		event.UserID,
 		durationToInterval(event.NotifyBefore),
 	)
-
 	if err != nil {
 		return err
 	}
@@ -129,7 +128,6 @@ func (s *postgresSQL) Delete(ctx context.Context, id string) error {
 	const query = `DELETE FROM events WHERE id = $1`
 
 	res, err := s.db.ExecContext(ctx, query, id)
-
 	if err != nil {
 		return err
 	}
@@ -198,7 +196,8 @@ func durationToInterval(d time.Duration) interface{} {
 }
 
 func (s *postgresSQL) listByRange(ctx context.Context, userID string,
-	startTime, endTime time.Time) ([]domain.Event, error) {
+	startTime, endTime time.Time,
+) ([]domain.Event, error) {
 	const query = `
 		SELECT id, title, start_time, end_time, description, user_id, notify_before
 		FROM events

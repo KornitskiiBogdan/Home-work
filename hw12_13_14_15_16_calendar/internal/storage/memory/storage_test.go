@@ -26,8 +26,10 @@ func TestStorage_Create(t *testing.T) {
 func TestStorage_CreateWithDateBusyError(t *testing.T) {
 	timeStart := time.Now()
 	event1 := domain.Event{ID: uuid.New().String(), UserID: "1", StartTime: timeStart, EndTime: timeStart.Add(time.Hour)}
-	event2 := domain.Event{ID: uuid.New().String(), UserID: "1",
-		StartTime: timeStart.Add(-30 * time.Minute), EndTime: timeStart.Add(30 * time.Minute)}
+	event2 := domain.Event{
+		ID: uuid.New().String(), UserID: "1",
+		StartTime: timeStart.Add(-30 * time.Minute), EndTime: timeStart.Add(30 * time.Minute),
+	}
 	storage := New()
 
 	assert.NoError(t, storage.Create(context.Background(), event1))

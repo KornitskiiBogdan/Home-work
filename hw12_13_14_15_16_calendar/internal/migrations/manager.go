@@ -3,7 +3,7 @@ package migrations
 import (
 	"database/sql"
 
-	_ "github.com/lib/pq" //nolint:revive
+	_ "github.com/lib/pq"
 	"github.com/pressly/goose/v3"
 )
 
