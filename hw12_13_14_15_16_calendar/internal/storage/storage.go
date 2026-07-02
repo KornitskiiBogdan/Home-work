@@ -37,6 +37,7 @@ func (c DBConfig) DSN() string {
 }
 
 type Storage interface {
+	Get(ctx context.Context, id string) (domain.Event, error)
 	Create(ctx context.Context, event domain.Event) error
 	Update(ctx context.Context, event domain.Event) error
 	Delete(ctx context.Context, id string) error

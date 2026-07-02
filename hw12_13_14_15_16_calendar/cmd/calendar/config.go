@@ -3,19 +3,16 @@ package main
 import (
 	"os"
 
+	"github.com/hw12_13_14_15_calendar/internal/logger"
 	http "github.com/hw12_13_14_15_calendar/internal/server/http"
 	"github.com/hw12_13_14_15_calendar/internal/storage"
 	"gopkg.in/yaml.v3"
 )
 
 type Config struct {
-	Logger  LoggerConf     `yaml:"logger"`
+	Logger  logger.Conf    `yaml:"logger"`
 	Http    http.HttpConf  `yaml:"http"`
 	Storage storage.Config `yaml:"storage"`
-}
-
-type LoggerConf struct {
-	Level string `yaml:"level"`
 }
 
 func NewConfig(path string) (Config, error) {

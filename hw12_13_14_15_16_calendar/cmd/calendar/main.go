@@ -32,7 +32,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	logg := logger.New(config.Logger.Level)
+	logg := logger.New(config.Logger)
 
 	storageApp, err := factory.New(config.Storage)
 	if err != nil {

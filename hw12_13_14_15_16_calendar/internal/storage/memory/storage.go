@@ -62,6 +62,17 @@ func (m *memoryStorage) Delete(ctx context.Context, id string) error {
 	return nil
 }
 
+func (m *memoryStorage) Get(ctx context.Context, id string) (domain.Event, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	event, ok := m.events[id]
+	if !ok {
+		return domain.Event{}, domain.ErrNotFound
+	}
+	return event, nil
+}
+
 func (m *memoryStorage) ListOnDay(ctx context.Context, userId string, day time.Time) ([]domain.Event, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

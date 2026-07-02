@@ -1,20 +1,73 @@
 package logger
 
-import "fmt"
+import (
+	"io"
 
-type Logger struct { // TODO
+	"github.com/rs/zerolog"
+)
+
+type Level string
+
+const (
+	DebugLevel Level = "debug"
+	InfoLevel  Level = "info"
+	WarnLevel  Level = "warn"
+	ErrorLevel Level = "error"
+)
+
+type Conf struct {
+	Level Level `yaml:"level"`
 }
 
-func New(level string) *Logger {
-	return &Logger{}
+type logger struct {
+	log *zerolog.Logger
 }
 
-func (l Logger) Info(msg string) {
-	fmt.Println(msg)
+type Logger interface {
+	Info(msg string)
+	Warn(msg string)
+	Error(msg string)
+	Debug(msg string)
 }
 
-func (l Logger) Error(msg string) {
-	// TODO
+func New(conf Conf, writer io.Writer) Logger {
+	var levelZerolog zerolog.Level
+	switch conf.Level {
+	case "debug":
+		levelZerolog = zerolog.DebugLevel
+	case "info":
+		levelZerolog = zerolog.InfoLevel
+	case "warn":
+		levelZerolog = zerolog.WarnLevel
+	case "error":
+		levelZerolog = zerolog.ErrorLevel
+	default:
+		levelZerolog = zerolog.DebugLevel
+	}
+
+	zeroLog := zerolog.New(writer).
+		With().
+		Timestamp().
+		Logger().
+		Level(levelZerolog)
+
+	return &logger{
+		log: &zeroLog,
+	}
 }
 
-// TODO
+func (l *logger) Info(msg string) {
+	l.log.Info().Msg(msg)
+}
+
+func (l *logger) Error(msg string) {
+	l.log.Error().Msg(msg)
+}
+
+func (l *logger) Warn(msg string) {
+	l.log.Warn().Msg(msg)
+}
+
+func (l *logger) Debug(msg string) {
+	l.log.Debug().Msg(msg)
+}
