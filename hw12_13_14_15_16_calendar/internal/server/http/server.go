@@ -2,30 +2,83 @@ package internalhttp
 
 import (
 	"context"
+	"errors"
+	"net"
+	"net/http"
+	"strconv"
+	"time"
 )
 
-type Server struct { // TODO
+const (
+	ReadHeaderTimeout = 10 * time.Second
+)
+
+type HTTPConf struct {
+	Host string `yaml:"host"`
+	Port int    `yaml:"port"`
 }
 
-type Logger interface { // TODO
+type Logger interface {
+	Info(msg string)
 }
 
 type Application interface { // TODO
 }
 
-func NewServer(logger Logger, app Application) *Server {
-	return &Server{}
+type Server struct {
+	log Logger
+	cfg HTTPConf
+	app Application
+
+	server *http.Server
+}
+
+func NewServer(logger Logger, cfg HTTPConf, app Application) *Server {
+	return &Server{
+		log: logger,
+		cfg: cfg,
+		app: app,
+	}
 }
 
 func (s *Server) Start(ctx context.Context) error {
-	// TODO
-	<-ctx.Done()
-	return nil
+	mux := http.NewServeMux()
+	mux.HandleFunc("/hello", helloHandler)
+	addr := net.JoinHostPort(s.cfg.Host, strconv.Itoa(s.cfg.Port))
+	s.server = &http.Server{
+		Addr:              addr,
+		Handler:           loggingMiddleware(s.log, mux),
+		ReadHeaderTimeout: ReadHeaderTimeout,
+	}
+
+	errCh := make(chan error, 1)
+
+	go func() {
+		err := s.server.ListenAndServe()
+		if errors.Is(err, http.ErrServerClosed) {
+			errCh <- nil
+			return
+		}
+		errCh <- err
+	}()
+
+	select {
+	case <-ctx.Done():
+		return nil
+	case err := <-errCh:
+		return err
+	}
 }
 
 func (s *Server) Stop(ctx context.Context) error {
-	// TODO
-	return nil
+	if s.server == nil {
+		return nil
+	}
+
+	return s.server.Shutdown(ctx)
 }
 
-// TODO
+func helloHandler(w http.ResponseWriter, _ *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("hello world"))
+}
