@@ -3,7 +3,7 @@ package migrations
 import (
 	"database/sql"
 
-	_ "github.com/lib/pq"
+	_ "github.com/lib/pq" // драйвер PostgreSQL
 	"github.com/pressly/goose/v3"
 )
 

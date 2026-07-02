@@ -2,22 +2,21 @@ package memorystorage
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"testing"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/hw12_13_14_15_calendar/internal/domain"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestStorage_Create(t *testing.T) {
-	id := uuid.New().String()
-	event := domain.Event{ID: id}
+	event := domain.Event{ID: "id1"}
 	storage := New()
 
 	assert.NoError(t, storage.Create(context.Background(), event))
-	actualEvent, err := storage.Get(context.Background(), id)
+	actualEvent, err := storage.Get(context.Background(), "id1")
 
 	assert.NoError(t, err)
 	assert.Equal(t, event, actualEvent)
@@ -25,9 +24,9 @@ func TestStorage_Create(t *testing.T) {
 
 func TestStorage_CreateWithDateBusyError(t *testing.T) {
 	timeStart := time.Now()
-	event1 := domain.Event{ID: uuid.New().String(), UserID: "1", StartTime: timeStart, EndTime: timeStart.Add(time.Hour)}
+	event1 := domain.Event{ID: "id1", UserID: "1", StartTime: timeStart, EndTime: timeStart.Add(time.Hour)}
 	event2 := domain.Event{
-		ID: uuid.New().String(), UserID: "1",
+		ID: "id2", UserID: "1",
 		StartTime: timeStart.Add(-30 * time.Minute), EndTime: timeStart.Add(30 * time.Minute),
 	}
 	storage := New()
@@ -39,9 +38,8 @@ func TestStorage_CreateWithDateBusyError(t *testing.T) {
 }
 
 func TestStorage_CreateWithIDExistsError(t *testing.T) {
-	id := uuid.New().String()
-	event1 := domain.Event{ID: id}
-	event2 := domain.Event{ID: id}
+	event1 := domain.Event{ID: "id1"}
+	event2 := domain.Event{ID: "id1"}
 	storage := New()
 
 	assert.NoError(t, storage.Create(context.Background(), event1))
@@ -51,11 +49,8 @@ func TestStorage_CreateWithIDExistsError(t *testing.T) {
 }
 
 func TestStorage_MultiThreadingCreate(t *testing.T) {
-	id1 := uuid.New().String()
-	event1 := domain.Event{ID: id1}
-
-	id2 := uuid.New().String()
-	event2 := domain.Event{ID: id2}
+	event1 := domain.Event{ID: "id1"}
+	event2 := domain.Event{ID: "id2"}
 
 	storage := New()
 	wg := sync.WaitGroup{}
@@ -73,8 +68,8 @@ func TestStorage_MultiThreadingCreate(t *testing.T) {
 
 	wg.Wait()
 
-	actualEvent1, _ := storage.Get(context.Background(), id1)
-	actualEvent2, _ := storage.Get(context.Background(), id2)
+	actualEvent1, _ := storage.Get(context.Background(), "id1")
+	actualEvent2, _ := storage.Get(context.Background(), "id2")
 
 	assert.Equal(t, event1, actualEvent1)
 	assert.Equal(t, event2, actualEvent2)
@@ -83,23 +78,22 @@ func TestStorage_MultiThreadingCreate(t *testing.T) {
 func TestStorage_GetNotFound(t *testing.T) {
 	storage := New()
 
-	_, err := storage.Get(context.Background(), uuid.New().String())
+	_, err := storage.Get(context.Background(), "id1")
 	assert.ErrorIs(t, err, domain.ErrNotFound)
 }
 
 func TestStorage_Update(t *testing.T) {
-	id := uuid.New().String()
 	start := time.Date(2026, 6, 15, 10, 0, 0, 0, time.UTC)
 
 	event := domain.Event{
-		ID:        id,
+		ID:        "id1",
 		Title:     "old",
 		UserID:    "user-1",
 		StartTime: start,
 		EndTime:   start.Add(time.Hour),
 	}
 	updated := domain.Event{
-		ID:        id,
+		ID:        "id1",
 		Title:     "new",
 		UserID:    "user-1",
 		StartTime: start,
@@ -110,7 +104,7 @@ func TestStorage_Update(t *testing.T) {
 	assert.NoError(t, storage.Create(context.Background(), event))
 	assert.NoError(t, storage.Update(context.Background(), updated))
 
-	actual, err := storage.Get(context.Background(), id)
+	actual, err := storage.Get(context.Background(), "id1")
 	assert.NoError(t, err)
 	assert.Equal(t, updated, actual)
 }
@@ -118,7 +112,7 @@ func TestStorage_Update(t *testing.T) {
 func TestStorage_UpdateNotFound(t *testing.T) {
 	storage := New()
 
-	err := storage.Update(context.Background(), domain.Event{ID: uuid.New().String()})
+	err := storage.Update(context.Background(), domain.Event{ID: "id1"})
 	assert.ErrorIs(t, err, domain.ErrNotFound)
 }
 
@@ -126,13 +120,13 @@ func TestStorage_UpdateDateBusy(t *testing.T) {
 	start := time.Date(2026, 6, 15, 10, 0, 0, 0, time.UTC)
 
 	event1 := domain.Event{
-		ID:        uuid.New().String(),
+		ID:        "id1",
 		UserID:    "user-1",
 		StartTime: start,
 		EndTime:   start.Add(time.Hour),
 	}
 	event2 := domain.Event{
-		ID:        uuid.New().String(),
+		ID:        "id2",
 		UserID:    "user-1",
 		StartTime: start.Add(2 * time.Hour),
 		EndTime:   start.Add(3 * time.Hour),
@@ -153,7 +147,7 @@ func TestStorage_UpdateSameSlot(t *testing.T) {
 	start := time.Date(2026, 6, 15, 10, 0, 0, 0, time.UTC)
 
 	event := domain.Event{
-		ID:        uuid.New().String(),
+		ID:        "id1",
 		Title:     "title",
 		UserID:    "user-1",
 		StartTime: start,
@@ -172,20 +166,19 @@ func TestStorage_UpdateSameSlot(t *testing.T) {
 }
 
 func TestStorage_Delete(t *testing.T) {
-	id := uuid.New().String()
 	storage := New()
 
-	assert.NoError(t, storage.Create(context.Background(), domain.Event{ID: id}))
-	assert.NoError(t, storage.Delete(context.Background(), id))
+	assert.NoError(t, storage.Create(context.Background(), domain.Event{ID: "id1"}))
+	assert.NoError(t, storage.Delete(context.Background(), "id1"))
 
-	_, err := storage.Get(context.Background(), id)
+	_, err := storage.Get(context.Background(), "id1")
 	assert.ErrorIs(t, err, domain.ErrNotFound)
 }
 
 func TestStorage_DeleteNotFound(t *testing.T) {
 	storage := New()
 
-	err := storage.Delete(context.Background(), uuid.New().String())
+	err := storage.Delete(context.Background(), "id1")
 	assert.ErrorIs(t, err, domain.ErrNotFound)
 }
 
@@ -193,13 +186,13 @@ func TestStorage_CreateDateBusyOnlyForSameUser(t *testing.T) {
 	start := time.Date(2026, 6, 15, 10, 0, 0, 0, time.UTC)
 
 	event1 := domain.Event{
-		ID:        uuid.New().String(),
+		ID:        "id1",
 		UserID:    "user-1",
 		StartTime: start,
 		EndTime:   start.Add(time.Hour),
 	}
 	event2 := domain.Event{
-		ID:        uuid.New().String(),
+		ID:        "id2",
 		UserID:    "user-2", // другой пользователь
 		StartTime: start,
 		EndTime:   start.Add(time.Hour),
@@ -213,19 +206,19 @@ func TestStorage_CreateDateBusyOnlyForSameUser(t *testing.T) {
 func TestStorage_ListOnDay(t *testing.T) {
 	day := time.Date(2026, 6, 15, 0, 0, 0, 0, time.UTC)
 	inDay := domain.Event{
-		ID:        uuid.New().String(),
+		ID:        "id1",
 		UserID:    "user-1",
 		StartTime: day.Add(10 * time.Hour),
 		EndTime:   day.Add(11 * time.Hour),
 	}
 	otherDay := domain.Event{
-		ID:        uuid.New().String(),
+		ID:        "id2",
 		UserID:    "user-1",
 		StartTime: day.Add(25 * time.Hour),
 		EndTime:   day.Add(26 * time.Hour),
 	}
 	otherUser := domain.Event{
-		ID:        uuid.New().String(),
+		ID:        "id3",
 		UserID:    "user-2",
 		StartTime: day.Add(10 * time.Hour),
 		EndTime:   day.Add(11 * time.Hour),
@@ -246,13 +239,13 @@ func TestStorage_ListOnWeek(t *testing.T) {
 	weekStart := time.Date(2026, 6, 15, 0, 0, 0, 0, time.UTC) // понедельник
 
 	inWeek := domain.Event{
-		ID:        uuid.New().String(),
+		ID:        "id1",
 		UserID:    "user-1",
 		StartTime: weekStart.Add(2 * 24 * time.Hour).Add(10 * time.Hour),
 		EndTime:   weekStart.Add(2 * 24 * time.Hour).Add(11 * time.Hour),
 	}
 	outOfWeek := domain.Event{
-		ID:        uuid.New().String(),
+		ID:        "id2",
 		UserID:    "user-1",
 		StartTime: weekStart.Add(8 * 24 * time.Hour).Add(10 * time.Hour),
 		EndTime:   weekStart.Add(8 * 24 * time.Hour).Add(11 * time.Hour),
@@ -272,13 +265,13 @@ func TestStorage_ListOnMonth(t *testing.T) {
 	monthStart := time.Date(2026, 6, 1, 0, 0, 0, 0, time.UTC)
 
 	inMonth := domain.Event{
-		ID:        uuid.New().String(),
+		ID:        "id1",
 		UserID:    "user-1",
 		StartTime: time.Date(2026, 6, 10, 10, 0, 0, 0, time.UTC),
 		EndTime:   time.Date(2026, 6, 10, 11, 0, 0, 0, time.UTC),
 	}
 	outOfMonth := domain.Event{
-		ID:        uuid.New().String(),
+		ID:        "id2",
 		UserID:    "user-1",
 		StartTime: time.Date(2026, 7, 1, 10, 0, 0, 0, time.UTC),
 		EndTime:   time.Date(2026, 7, 1, 11, 0, 0, 0, time.UTC),
@@ -305,7 +298,7 @@ func TestStorage_ConcurrentReadWrite(t *testing.T) {
 		go func() {
 			defer wg.Done()
 
-			id := uuid.New().String()
+			id := fmt.Sprintf("id%d", i)
 			event := domain.Event{ID: id, Title: "event"}
 
 			if err := storage.Create(context.Background(), event); err != nil {
