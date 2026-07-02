@@ -6,7 +6,7 @@ import (
 	"github.com/hw12_13_14_15_calendar/internal/logger"
 	http "github.com/hw12_13_14_15_calendar/internal/server/http"
 	"github.com/hw12_13_14_15_calendar/internal/storage"
-	"gopkg.in/yaml.v3"
+	yaml "gopkg.in/yaml.v3"
 )
 
 type Config struct {

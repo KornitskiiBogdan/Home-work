@@ -3,7 +3,6 @@ module github.com/hw12_13_14_15_calendar
 go 1.25.7
 
 require (
-	github.com/google/uuid v1.6.0
 	github.com/lib/pq v1.12.3
 	github.com/pressly/goose/v3 v3.27.1
 	github.com/rs/zerolog v1.35.1

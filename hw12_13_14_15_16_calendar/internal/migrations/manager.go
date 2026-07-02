@@ -4,7 +4,7 @@ import (
 	"database/sql"
 
 	_ "github.com/lib/pq" // драйвер PostgreSQL
-	"github.com/pressly/goose/v3"
+	goose "github.com/pressly/goose/v3"
 )
 
 type Manager struct {
