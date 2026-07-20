@@ -1,5 +1,16 @@
-[logger]
-level = "INFO"
+logger:
+  level: "info"
 
-# TODO
-# ...
+http:
+  host: "127.0.0.1"
+  port: 8080
+
+storage:
+  type: "sql"
+  db:
+    host: "127.0.0.1"
+    port: 5435
+    user: "postgres"
+    password: "password"
+    dbname: "backend"
+    sslmode: "disable"

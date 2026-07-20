@@ -26,7 +26,7 @@ run-postgres:
 	-e POSTGRES_DB=$(POSTGRES_DB) \
 	-p $(POSTGRES_PORT):5432 \
 	-v postgres-data:/var/lib/postgresql/data \
-	postgres:latest
+	postgres:16
 
 run-rabbit:
 	docker run -d --name $(RABBIT_CONTAINER) \
@@ -40,7 +40,7 @@ build:
 	go build -v -o $(BIN) -ldflags "$(LDFLAGS)" ./cmd/calendar
 
 run: build
-	$(BIN) -config ./configs/config.toml
+	$(BIN) -config ./configs/config.yaml
 
 build-img:
 	docker build \
@@ -55,10 +55,10 @@ version: build
 	$(BIN) version
 
 test:
-	go test -race ./internal/... ./pkg/...
+	go test -race ./...
 
 install-lint-deps:
-	(which golangci-lint > /dev/null) || curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v1.57.2
+	(which golangci-lint > /dev/null) || curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v1.63.4
 
 lint: install-lint-deps
 	golangci-lint run ./...
