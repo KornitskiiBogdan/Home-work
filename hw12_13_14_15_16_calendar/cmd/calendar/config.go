@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/hw12_13_14_15_calendar/internal/logger"
+	"github.com/hw12_13_14_15_calendar/internal/server/grpc"
 	http "github.com/hw12_13_14_15_calendar/internal/server/http"
 	"github.com/hw12_13_14_15_calendar/internal/storage"
 	yaml "gopkg.in/yaml.v3"
@@ -12,6 +13,7 @@ import (
 type Config struct {
 	Logger  logger.Conf    `yaml:"logger"`
 	HTTP    http.HTTPConf  `yaml:"http"`
+	GRPC    grpc.Conf      `yaml:"grpc"`
 	Storage storage.Config `yaml:"storage"`
 }
 
