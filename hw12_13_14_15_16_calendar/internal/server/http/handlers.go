@@ -140,7 +140,9 @@ func writeAppError(w http.ResponseWriter, err error) {
 	switch {
 	case errors.Is(err, domain.ErrNotFound):
 		writeError(w, http.StatusNotFound, err)
-	case errors.Is(err, domain.ErrTitleRequired), errors.Is(err, domain.ErrUserIDRequired), errors.Is(err, domain.ErrEndTimeAfterStart):
+	case errors.Is(err, domain.ErrTitleRequired),
+		errors.Is(err, domain.ErrUserIDRequired),
+		errors.Is(err, domain.ErrEndTimeAfterStart):
 		writeError(w, http.StatusBadRequest, err)
 	case errors.Is(err, domain.ErrDateBusy), errors.Is(err, domain.ErrIDExists):
 		writeError(w, http.StatusConflict, err)

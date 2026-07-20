@@ -50,10 +50,8 @@ func (s *Server) Start(ctx context.Context) error {
 			s.log.Error("grpc server serve failed")
 		}
 	}()
-	select {
-	case <-ctx.Done():
-		return nil
-	}
+	<-ctx.Done()
+	return nil
 }
 
 func (s *Server) Stop() error {

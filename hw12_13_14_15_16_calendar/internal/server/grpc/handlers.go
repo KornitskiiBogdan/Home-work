@@ -50,7 +50,10 @@ func (s *Server) DeleteEvent(ctx context.Context, req *eventpb.DeleteEventReques
 	return &emptypb.Empty{}, nil
 }
 
-func (s *Server) GetListOnDayEvents(ctx context.Context, req *eventpb.ListOnDayRequest) (*eventpb.ListEventsResponse, error) {
+func (s *Server) GetListOnDayEvents(
+	ctx context.Context,
+	req *eventpb.ListOnDayRequest,
+) (*eventpb.ListEventsResponse, error) {
 	events, err := s.app.ListOnDay(ctx, req.GetUserId(), req.GetDay().AsTime())
 	if err != nil {
 		return nil, toStatus(err)
@@ -62,7 +65,10 @@ func (s *Server) GetListOnDayEvents(ctx context.Context, req *eventpb.ListOnDayR
 	return resp, nil
 }
 
-func (s *Server) GetListOnWeekEvents(ctx context.Context, req *eventpb.ListOnWeekRequest) (*eventpb.ListEventsResponse, error) {
+func (s *Server) GetListOnWeekEvents(
+	ctx context.Context,
+	req *eventpb.ListOnWeekRequest,
+) (*eventpb.ListEventsResponse, error) {
 	events, err := s.app.ListOnWeek(ctx, req.GetUserId(), req.GetWeekStart().AsTime())
 	if err != nil {
 		return nil, toStatus(err)
@@ -74,7 +80,10 @@ func (s *Server) GetListOnWeekEvents(ctx context.Context, req *eventpb.ListOnWee
 	return resp, nil
 }
 
-func (s *Server) GetListOnMonthEvents(ctx context.Context, req *eventpb.ListOnMonthRequest) (*eventpb.ListEventsResponse, error) {
+func (s *Server) GetListOnMonthEvents(
+	ctx context.Context,
+	req *eventpb.ListOnMonthRequest,
+) (*eventpb.ListEventsResponse, error) {
 	events, err := s.app.ListOnMonth(ctx, req.GetUserId(), req.GetMonthStart().AsTime())
 	if err != nil {
 		return nil, toStatus(err)
@@ -90,7 +99,9 @@ func toStatus(err error) error {
 	switch {
 	case errors.Is(err, domain.ErrNotFound):
 		return status.Error(codes.NotFound, err.Error())
-	case errors.Is(err, domain.ErrTitleRequired), errors.Is(err, domain.ErrUserIDRequired), errors.Is(err, domain.ErrEndTimeAfterStart):
+	case errors.Is(err, domain.ErrTitleRequired),
+		errors.Is(err, domain.ErrUserIDRequired),
+		errors.Is(err, domain.ErrEndTimeAfterStart):
 		return status.Error(codes.InvalidArgument, err.Error())
 	case errors.Is(err, domain.ErrDateBusy), errors.Is(err, domain.ErrIDExists):
 		return status.Error(codes.AlreadyExists, err.Error())

@@ -8,6 +8,10 @@ linters-settings:
   funlen:
     lines: 150
     statements: 80
+  tagliatelle:
+    case:
+      rules:
+        json: snake
   depguard:
     rules:
       Main:
@@ -23,6 +27,9 @@ linters-settings:
           - gopkg.in/yaml.v3
           - github.com/lib/pq
           - github.com/pressly/goose/v3
+          - github.com/google/uuid
+          - google.golang.org/grpc
+          - google.golang.org/protobuf
       Test:
         files:
           - $test
@@ -30,6 +37,9 @@ linters-settings:
           - $gostd
           - github.com/stretchr/testify
           - github.com/hw12_13_14_15_calendar
+          - go.uber.org/mock
+          - google.golang.org/grpc
+          - google.golang.org/protobuf
 issues:
   exclude-rules:
     - path: _test\.go
