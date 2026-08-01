@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/hw12_13_14_15_calendar/internal/server"
 )
 
 const (
@@ -22,18 +24,15 @@ type Logger interface {
 	Info(msg string)
 }
 
-type Application interface { // TODO
-}
-
 type Server struct {
 	log Logger
 	cfg HTTPConf
-	app Application
+	app server.Application
 
 	server *http.Server
 }
 
-func NewServer(logger Logger, cfg HTTPConf, app Application) *Server {
+func NewServer(logger Logger, cfg HTTPConf, app server.Application) *Server {
 	return &Server{
 		log: logger,
 		cfg: cfg,
@@ -41,13 +40,24 @@ func NewServer(logger Logger, cfg HTTPConf, app Application) *Server {
 	}
 }
 
-func (s *Server) Start(ctx context.Context) error {
+func (s *Server) Handler() http.Handler {
 	mux := http.NewServeMux()
+	mux.HandleFunc("POST /events", s.createEvent)
+	mux.HandleFunc("GET /events/{id}", s.getEvent)
+	mux.HandleFunc("PUT /events/{id}", s.updateEvent)
+	mux.HandleFunc("DELETE /events/{id}", s.deleteEvent)
+	mux.HandleFunc("GET /events/day", s.listOnDay)
+	mux.HandleFunc("GET /events/week", s.listOnWeek)
+	mux.HandleFunc("GET /events/month", s.listOnMonth)
 	mux.HandleFunc("/hello", helloHandler)
+	return loggingMiddleware(s.log, mux)
+}
+
+func (s *Server) Start(ctx context.Context) error {
 	addr := net.JoinHostPort(s.cfg.Host, strconv.Itoa(s.cfg.Port))
 	s.server = &http.Server{
 		Addr:              addr,
-		Handler:           loggingMiddleware(s.log, mux),
+		Handler:           s.Handler(),
 		ReadHeaderTimeout: ReadHeaderTimeout,
 	}
 
