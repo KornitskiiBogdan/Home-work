@@ -167,6 +167,90 @@ func (s *postgresSQL) ListOnMonth(ctx context.Context, userID string, monthStart
 	return s.listByRange(ctx, userID, start, end)
 }
 
+func (s *postgresSQL) ListDueNotifications(ctx context.Context, now time.Time) ([]domain.Event, error) {
+	const query = `
+		SELECT e.id, e.title, e.start_time, e.end_time, e.description, e.user_id, e.notify_before
+		FROM events e
+		LEFT JOIN notification_outbox o ON o.event_id = e.id
+		WHERE e.notify_before IS NOT NULL
+		  AND e.start_time - e.notify_before <= $1
+		  AND e.start_time > $1
+		  AND o.event_id IS NULL`
+
+	return s.scan(ctx, query, now)
+}
+
+func (s *postgresSQL) DeleteOlderThan(ctx context.Context, before time.Time) (int64, error) {
+	res, err := s.db.ExecContext(ctx, `DELETE FROM events WHERE end_time < $1`, before)
+	if err != nil {
+		return 0, err
+	}
+	return res.RowsAffected()
+}
+
+func (s *postgresSQL) AddToOutbox(ctx context.Context, msg domain.OutboxMessage) error {
+	const query = `
+		INSERT INTO notification_outbox (id, event_id, title, event_date, user_id, created_at)
+		VALUES ($1, $2, $3, $4, $5, $6)
+		ON CONFLICT (event_id) DO NOTHING`
+
+	createdAt := msg.CreatedAt
+	if createdAt.IsZero() {
+		createdAt = time.Now()
+	}
+
+	_, err := s.db.ExecContext(ctx, query,
+		msg.ID, msg.EventID, msg.Title, msg.EventDate, msg.UserID, createdAt,
+	)
+	return err
+}
+
+func (s *postgresSQL) ListUnpublishedOutbox(ctx context.Context, limit int) ([]domain.OutboxMessage, error) {
+	const query = `
+		SELECT id, event_id, title, event_date, user_id, created_at, published_at
+		FROM notification_outbox
+		WHERE published_at IS NULL
+		ORDER BY created_at
+		LIMIT $1`
+
+	rows, err := s.db.QueryContext(ctx, query, limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	result := make([]domain.OutboxMessage, 0, limit)
+	for rows.Next() {
+		var msg domain.OutboxMessage
+		var publishedAt sql.NullTime
+		if err := rows.Scan(
+			&msg.ID, &msg.EventID, &msg.Title, &msg.EventDate,
+			&msg.UserID, &msg.CreatedAt, &publishedAt,
+		); err != nil {
+			return nil, err
+		}
+		if publishedAt.Valid {
+			t := publishedAt.Time
+			msg.PublishedAt = &t
+		}
+		result = append(result, msg)
+	}
+	return result, rows.Err()
+}
+
+func (s *postgresSQL) MarkOutboxPublished(ctx context.Context, ids []string) error {
+	if len(ids) == 0 {
+		return nil
+	}
+	const query = `
+		UPDATE notification_outbox
+		SET published_at = now()
+		WHERE id = ANY($1) AND published_at IS NULL`
+
+	_, err := s.db.ExecContext(ctx, query, pq.Array(ids))
+	return err
+}
+
 func (s *postgresSQL) checkBusy(ctx context.Context, event domain.Event) error {
 	const query = `
 					SELECT 1 
@@ -203,7 +287,11 @@ func (s *postgresSQL) listByRange(ctx context.Context, userID string,
 		FROM events
 		WHERE user_id = $1 AND start_time >= $2 AND end_time <= $3`
 
-	rows, err := s.db.QueryContext(ctx, query, userID, startTime, endTime)
+	return s.scan(ctx, query, userID, startTime, endTime)
+}
+
+func (s *postgresSQL) scan(ctx context.Context, query string, args ...interface{}) ([]domain.Event, error) {
+	rows, err := s.db.QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, err
 	}

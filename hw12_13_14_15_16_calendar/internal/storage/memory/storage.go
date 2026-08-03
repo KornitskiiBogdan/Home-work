@@ -11,11 +11,14 @@ import (
 
 type memoryStorage struct {
 	events map[string]domain.Event
+	outbox map[string]domain.OutboxMessage
 	mu     sync.RWMutex
 }
 
 func New() storage.Storage {
-	return &memoryStorage{events: make(map[string]domain.Event)}
+	return &memoryStorage{
+		events: make(map[string]domain.Event),
+		outbox: make(map[string]domain.OutboxMessage)}
 }
 
 func (m *memoryStorage) Create(_ context.Context, event domain.Event) error {
@@ -59,6 +62,7 @@ func (m *memoryStorage) Delete(_ context.Context, id string) error {
 	}
 
 	delete(m.events, id)
+	delete(m.outbox, id)
 	return nil
 }
 
@@ -101,6 +105,94 @@ func (m *memoryStorage) ListOnMonth(_ context.Context, userID string, monthStart
 	endTime := startTime.AddDate(0, 1, 0)
 
 	return m.listByRange(userID, startTime, endTime), nil
+}
+
+func (m *memoryStorage) ListDueNotifications(ctx context.Context, now time.Time) ([]domain.Event, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	result := make([]domain.Event, 0)
+	for _, event := range m.events {
+		if event.NotifyBefore <= 0 {
+			continue
+		}
+
+		// уже есть в outbox — пропускаем
+		if _, exists := m.outbox[event.ID]; exists {
+			continue
+		}
+		notifyAt := event.StartTime.Add(-event.NotifyBefore)
+		if !notifyAt.After(now) && event.StartTime.After(now) {
+			result = append(result, event)
+		}
+	}
+	return result, nil
+}
+
+func (m *memoryStorage) DeleteOlderThan(ctx context.Context, before time.Time) (int64, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	var count int64
+	for id, event := range m.events {
+		if event.EndTime.Before(before) {
+			delete(m.events, id)
+			delete(m.outbox, id)
+			count++
+		}
+	}
+
+	return int64(count), nil
+}
+
+func (m *memoryStorage) AddToOutbox(_ context.Context, msg domain.OutboxMessage) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if _, exists := m.outbox[msg.EventID]; exists {
+		return nil // идемпотентно, как UNIQUE conflict
+	}
+
+	if msg.CreatedAt.IsZero() {
+		msg.CreatedAt = time.Now()
+	}
+
+	m.outbox[msg.EventID] = msg
+	return nil
+}
+
+func (m *memoryStorage) ListUnpublishedOutbox(_ context.Context, limit int) ([]domain.OutboxMessage, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	result := make([]domain.OutboxMessage, 0, limit)
+	for _, msg := range m.outbox {
+		if msg.PublishedAt != nil {
+			continue
+		}
+		result = append(result, msg)
+		if limit > 0 && len(result) >= limit {
+			break
+		}
+	}
+	return result, nil
+}
+
+func (m *memoryStorage) MarkOutboxPublished(_ context.Context, ids []string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	now := time.Now()
+	idSet := make(map[string]struct{}, len(ids))
+	for _, id := range ids {
+		idSet[id] = struct{}{}
+	}
+	for eventID, msg := range m.outbox {
+		if _, ok := idSet[msg.ID]; !ok {
+			continue
+		}
+		published := now
+		msg.PublishedAt = &published
+		m.outbox[eventID] = msg
+	}
+	return nil
 }
 
 func (m *memoryStorage) isBusy(event domain.Event) bool {

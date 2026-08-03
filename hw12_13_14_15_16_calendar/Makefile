@@ -1,4 +1,5 @@
-BIN := "./bin/calendar"
+BIN_DIR := ./bin
+BIN := $(BIN_DIR)/calendar
 DOCKER_IMG="calendar:develop"
 
 GIT_HASH := $(shell git log --format="%h" -n 1)
@@ -37,10 +38,19 @@ run-rabbit:
 	rabbitmq:management
 
 build:
-	go build -v -o $(BIN) -ldflags "$(LDFLAGS)" ./cmd/calendar
+	mkdir -p $(BIN_DIR)
+	go build -v -o $(BIN_DIR)/calendar -ldflags "$(LDFLAGS)" ./cmd/calendar
+	go build -v -o $(BIN_DIR)/calendar_scheduler -ldflags "$(LDFLAGS)" ./cmd/calendar_scheduler
+	go build -v -o $(BIN_DIR)/calendar_sender -ldflags "$(LDFLAGS)" ./cmd/calendar_sender
 
 run: build
 	$(BIN) -config ./configs/config.yaml
+
+run-scheduler: build
+	$(BIN_DIR)/calendar_scheduler -config ./configs/scheduler_config.yaml
+
+run-sender: build
+	$(BIN_DIR)/calendar_sender -config ./configs/sender_config.yaml
 
 build-img:
 	docker build \
@@ -66,4 +76,4 @@ lint: install-lint-deps
 generate:
 	go generate ./...
 
-.PHONY: build run build-img run-img version test lint generate
+.PHONY: build run run-scheduler run-sender build-img run-img version test lint generate

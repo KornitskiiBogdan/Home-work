@@ -44,4 +44,9 @@ type Storage interface {
 	ListOnDay(ctx context.Context, userID string, day time.Time) ([]domain.Event, error)
 	ListOnWeek(ctx context.Context, userID string, weekStart time.Time) ([]domain.Event, error)
 	ListOnMonth(ctx context.Context, userID string, monthStart time.Time) ([]domain.Event, error)
+	ListDueNotifications(ctx context.Context, now time.Time) ([]domain.Event, error)
+	DeleteOlderThan(ctx context.Context, before time.Time) (int64, error)
+	AddToOutbox(ctx context.Context, msg domain.OutboxMessage) error
+	ListUnpublishedOutbox(ctx context.Context, limit int) ([]domain.OutboxMessage, error)
+	MarkOutboxPublished(ctx context.Context, ids []string) error
 }

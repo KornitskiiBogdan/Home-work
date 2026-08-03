@@ -1,0 +1,9 @@
+logger:
+  level: "info"
+
+rabbitmq:
+  host: "127.0.0.1"
+  port: 5672
+  user: "rabbit"
+  password: "password"
+  queue: "notifications"
