@@ -36,7 +36,6 @@ func main() {
 }
 
 func run(cfg Config, logg logger.Logger) error {
-
 	st, err := factory.New(cfg.Storage)
 	if err != nil {
 		logg.Error(err.Error())
