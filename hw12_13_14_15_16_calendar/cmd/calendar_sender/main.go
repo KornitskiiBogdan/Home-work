@@ -28,6 +28,13 @@ func main() {
 
 	logg := logger.New(cfg.Logger, os.Stdout)
 
+	if err := run(cfg, logg); err != nil {
+		logg.Error(err.Error())
+		os.Exit(1)
+	}
+}
+
+func run(cfg Config, logg logger.Logger) error {
 	q, err := rabbit.New(cfg.RabbitMQ)
 	if err != nil {
 		logg.Error(err.Error())
@@ -42,8 +49,5 @@ func main() {
 	defer cancel()
 
 	logg.Info("sender is running...")
-	if err := snd.Run(ctx); err != nil {
-		logg.Error(err.Error())
-		os.Exit(1)
-	}
+	return snd.Run(ctx)
 }
