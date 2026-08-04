@@ -5,9 +5,8 @@ import (
 	"encoding/json"
 
 	"github.com/hw12_13_14_15_calendar/internal/domain"
-	amqp "github.com/rabbitmq/amqp091-go"
-
 	"github.com/hw12_13_14_15_calendar/internal/queue"
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 type Client struct {

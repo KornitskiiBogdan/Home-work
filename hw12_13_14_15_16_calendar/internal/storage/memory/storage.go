@@ -18,7 +18,8 @@ type memoryStorage struct {
 func New() storage.Storage {
 	return &memoryStorage{
 		events: make(map[string]domain.Event),
-		outbox: make(map[string]domain.OutboxMessage)}
+		outbox: make(map[string]domain.OutboxMessage),
+	}
 }
 
 func (m *memoryStorage) Create(_ context.Context, event domain.Event) error {
@@ -107,7 +108,7 @@ func (m *memoryStorage) ListOnMonth(_ context.Context, userID string, monthStart
 	return m.listByRange(userID, startTime, endTime), nil
 }
 
-func (m *memoryStorage) ListDueNotifications(ctx context.Context, now time.Time) ([]domain.Event, error) {
+func (m *memoryStorage) ListDueNotifications(_ context.Context, now time.Time) ([]domain.Event, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -129,7 +130,7 @@ func (m *memoryStorage) ListDueNotifications(ctx context.Context, now time.Time)
 	return result, nil
 }
 
-func (m *memoryStorage) DeleteOlderThan(ctx context.Context, before time.Time) (int64, error) {
+func (m *memoryStorage) DeleteOlderThan(_ context.Context, before time.Time) (int64, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -142,7 +143,7 @@ func (m *memoryStorage) DeleteOlderThan(ctx context.Context, before time.Time) (
 		}
 	}
 
-	return int64(count), nil
+	return count, nil
 }
 
 func (m *memoryStorage) AddToOutbox(_ context.Context, msg domain.OutboxMessage) error {
