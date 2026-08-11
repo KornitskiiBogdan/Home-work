@@ -1,0 +1,22 @@
+logger:
+  level: "info"
+
+storage:
+  type: "sql"
+  db:
+    host: "127.0.0.1"
+    port: 5435
+    user: "postgres"
+    password: "password"
+    dbname: "backend"
+    sslmode: "disable"
+
+rabbitmq:
+  host: "127.0.0.1"
+  port: 5672
+  user: "rabbit"
+  password: "password"
+  queue: "notifications"
+
+scheduler:
+  interval: 1m
