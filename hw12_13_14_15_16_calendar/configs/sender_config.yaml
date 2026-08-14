@@ -7,4 +7,4 @@ rabbitmq:
   user: "rabbit"
   password: "password"
   queue: "notifications"
-  ack_queue: "notifications.ack"
+  ackQueue: "notifications.ack"
