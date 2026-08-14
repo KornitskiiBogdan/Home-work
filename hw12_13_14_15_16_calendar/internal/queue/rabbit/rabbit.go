@@ -10,9 +10,10 @@ import (
 )
 
 type Client struct {
-	conn      *amqp.Connection
-	channel   *amqp.Channel
-	queueName string
+	conn         *amqp.Connection
+	channel      *amqp.Channel
+	queueName    string
+	ackQueueName string
 }
 
 func New(cfg queue.Config) (queue.Queue, error) {
@@ -22,16 +23,28 @@ func New(cfg queue.Config) (queue.Queue, error) {
 	}
 	channel, err := conn.Channel()
 	if err != nil {
+		_ = conn.Close()
 		return nil, err
 	}
 
-	_, err = channel.QueueDeclare(cfg.Queue, true, false, false, false, nil)
-	if err != nil {
+	if _, err = channel.QueueDeclare(cfg.Queue, true, false, false, false, nil); err != nil {
 		_ = channel.Close()
 		_ = conn.Close()
 		return nil, err
 	}
-	return &Client{conn: conn, channel: channel, queueName: cfg.Queue}, nil
+
+	if _, err = channel.QueueDeclare(cfg.AckQueue, true, false, false, false, nil); err != nil {
+		_ = channel.Close()
+		_ = conn.Close()
+		return nil, err
+	}
+
+	return &Client{
+		conn:         conn,
+		channel:      channel,
+		queueName:    cfg.Queue,
+		ackQueueName: cfg.AckQueue,
+	}, nil
 }
 
 func (c *Client) Publish(ctx context.Context, notification domain.Notification) error {
@@ -41,6 +54,18 @@ func (c *Client) Publish(ctx context.Context, notification domain.Notification) 
 	}
 
 	return c.channel.PublishWithContext(ctx, "", c.queueName, false, false, amqp.Publishing{
+		ContentType: "application/json",
+		Body:        body,
+	})
+}
+
+func (c *Client) PublishAck(ctx context.Context, ack domain.NotificationAck) error {
+	body, err := json.Marshal(ack)
+	if err != nil {
+		return err
+	}
+
+	return c.channel.PublishWithContext(ctx, "", c.ackQueueName, false, false, amqp.Publishing{
 		ContentType: "application/json",
 		Body:        body,
 	})

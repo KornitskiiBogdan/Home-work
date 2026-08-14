@@ -8,6 +8,7 @@ import (
 
 type Publisher interface {
 	Publish(ctx context.Context, notification domain.Notification) error
+	PublishAck(ctx context.Context, ack domain.NotificationAck) error
 	Close() error
 }
 

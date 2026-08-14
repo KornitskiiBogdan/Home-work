@@ -2,18 +2,18 @@ logger:
   level: "info"
 
 http:
-  host: "127.0.0.1"
+  host: "0.0.0.0"
   port: 8080
 
 grpc:
-  host: "127.0.0.1"
+  host: "0.0.0.0"
   port: 9090
 
 storage:
   type: "sql"
   db:
-    host: "127.0.0.1"
-    port: 5435
+    host: "postgres"
+    port: 5432
     user: "postgres"
     password: "password"
     dbname: "backend"

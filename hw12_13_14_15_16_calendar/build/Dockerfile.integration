@@ -1,0 +1,14 @@
+FROM golang:1.23
+
+WORKDIR /src
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+
+ENV CALENDAR_HTTP_ADDR=http://calendar:8080
+ENV RABBITMQ_URI=amqp://rabbit:password@rabbitmq:5672/
+ENV RABBITMQ_ACK_QUEUE=notifications.ack
+
+CMD ["go", "test", "-tags=integration", "-v", "-count=1", "./tests/integration/..."]

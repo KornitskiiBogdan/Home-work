@@ -1,6 +1,10 @@
 BIN_DIR := ./bin
 BIN := $(BIN_DIR)/calendar
-DOCKER_IMG="calendar:develop"
+DOCKER_IMG_CALENDAR := calendar:develop
+DOCKER_IMG_SCHEDULER := calendar-scheduler:develop
+DOCKER_IMG_SENDER := calendar-sender:develop
+COMPOSE := docker compose -f deployments/docker-compose.yaml
+COMPOSE_TEST := docker compose -f deployments/docker-compose.yaml -f deployments/docker-compose.test.yaml
 
 GIT_HASH := $(shell git log --format="%h" -n 1)
 LDFLAGS := -X main.release="develop" -X main.buildDate=$(shell date -u +%Y-%m-%dT%H:%M:%S) -X main.gitHash=$(GIT_HASH)
@@ -55,11 +59,31 @@ run-sender: build
 build-img:
 	docker build \
 		--build-arg=LDFLAGS="$(LDFLAGS)" \
-		-t $(DOCKER_IMG) \
-		-f build/Dockerfile .
+		-t $(DOCKER_IMG_CALENDAR) \
+		-f build/Dockerfile.calendar .
+	docker build \
+		--build-arg=LDFLAGS="$(LDFLAGS)" \
+		-t $(DOCKER_IMG_SCHEDULER) \
+		-f build/Dockerfile.calendar_scheduler .
+	docker build \
+		--build-arg=LDFLAGS="$(LDFLAGS)" \
+		-t $(DOCKER_IMG_SENDER) \
+		-f build/Dockerfile.sender .
 
 run-img: build-img
-	docker run $(DOCKER_IMG)
+	docker run --rm -p 8888:8080 -p 9090:9090 $(DOCKER_IMG_CALENDAR)
+
+up:
+	$(COMPOSE) up -d --build
+down:
+	$(COMPOSE) down -v
+
+integration-tests:
+	-$(COMPOSE_TEST) down -v
+	$(COMPOSE_TEST) up --build --abort-on-container-exit --exit-code-from integration-tests; \
+	status=$$?; \
+	$(COMPOSE_TEST) down -v; \
+	exit $$status
 
 version: build
 	$(BIN) version
@@ -76,4 +100,4 @@ lint: install-lint-deps
 generate:
 	go generate ./...
 
-.PHONY: build run run-scheduler run-sender build-img run-img version test lint generate
+.PHONY: build run run-scheduler run-sender build-img run-img up down integration-tests version test lint generate run-postgres run-rabbit

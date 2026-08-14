@@ -8,7 +8,8 @@ type Config struct {
 	Port     int    `yaml:"port"`
 	User     string `yaml:"user"`
 	Password string `yaml:"password"`
-	Queue    string `yaml:"queue"` // например "notifications"
+	Queue    string `yaml:"queue"`     // например "notifications"
+	AckQueue string `yaml:"ack_queue"` // например "notifications.ack"
 }
 
 func (c Config) URI() string {

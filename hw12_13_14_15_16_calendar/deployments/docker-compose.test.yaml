@@ -1,0 +1,24 @@
+services:
+  calendar_scheduler:
+    volumes:
+      - ../configs/scheduler_config.integration.yaml:/etc/calendar/scheduler_config.yaml:ro
+
+  integration-tests:
+    build:
+      context: ..
+      dockerfile: build/Dockerfile.integration
+    environment:
+      CALENDAR_HTTP_ADDR: http://calendar:8080
+      RABBITMQ_URI: amqp://rabbit:password@rabbitmq:5672/
+      RABBITMQ_ACK_QUEUE: notifications.ack
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      calendar:
+        condition: service_started
+      calendar_scheduler:
+        condition: service_started
+      calendar_sender:
+        condition: service_started

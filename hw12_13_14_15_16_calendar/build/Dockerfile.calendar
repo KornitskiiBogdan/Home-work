@@ -1,0 +1,23 @@
+FROM golang:1.23 AS build
+
+WORKDIR /src
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+
+ARG LDFLAGS
+RUN CGO_ENABLED=0 go build -ldflags "$LDFLAGS" -o /out/calendar ./cmd/calendar
+
+FROM alpine:3.20
+
+LABEL organization="OTUS Online Education" \
+      service="calendar"
+
+COPY --from=build /out/calendar /opt/calendar/calendar
+COPY configs/config.yaml /etc/calendar/config.yaml
+
+EXPOSE 8080 9090
+
+CMD ["/opt/calendar/calendar", "-config", "/etc/calendar/config.yaml"]

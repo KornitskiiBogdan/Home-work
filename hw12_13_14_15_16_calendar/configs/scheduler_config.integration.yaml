@@ -20,4 +20,4 @@ rabbitmq:
   ack_queue: "notifications.ack"
 
 scheduler:
-  interval: 1m
+  interval: 5s
