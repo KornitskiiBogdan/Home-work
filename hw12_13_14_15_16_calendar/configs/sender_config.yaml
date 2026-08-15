@@ -2,8 +2,9 @@ logger:
   level: "info"
 
 rabbitmq:
-  host: "127.0.0.1"
+  host: "rabbitmq"
   port: 5672
   user: "rabbit"
   password: "password"
   queue: "notifications"
+  ackQueue: "notifications.ack"
