@@ -1,0 +1,31 @@
+{{- range $name, $app := .Values.apps}}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $name }}
+  labels:
+    app: {{ $name }}
+spec:
+  replicas: {{ $app.replicaCount}}
+  selector:
+    matchLabels:
+      app: {{ $name }}
+  template:
+    metadata:
+      labels:
+        app: {{ $name }}
+    spec:
+      containers:
+        - name: {{ $name }}
+          image: "{{ $app.image.repository}}:{{$app.image.tag}}"
+          imagePullPolicy: {{$.Values.imagePullPolicy}}
+          {{- if $app.ports}}
+          ports:
+            {{- range $app.ports}}
+            - name: {{ .name}}
+              containerPort: {{.containerPort}}
+              protocol: {{.protocol}}
+            {{- end}}
+          {{- end}}
+  {{- end}}
