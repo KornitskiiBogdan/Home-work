@@ -1,0 +1,40 @@
+imagePullPolicy: IfNotPresent
+
+apps:
+  calendar:
+    replicaCount: 1
+    image:
+      repository: calendar
+      tag: develop
+    ports:
+      - name: http
+        containerPort: 8080
+        protocol: TCP
+      - name: grpc
+        containerPort: 9090
+        protocol: TCP
+
+  calendar-scheduler:
+    replicaCount: 1
+    image:
+      repository: calendar-scheduler
+      tag: develop
+    ports: []
+
+  calendar-sender:
+    replicaCount: 1
+    image:
+      repository: calendar-sender
+      tag: develop
+    ports: [ ]
+
+service:
+  type: ClusterIP
+
+ingress:
+  enabled: true
+  className: nginx
+  host: calendar.local
+  path: /
+  pathType: Prefix
+  servicePort: 8080
